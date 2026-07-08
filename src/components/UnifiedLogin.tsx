@@ -26,8 +26,8 @@ export default function UnifiedLogin({
 
   // Admin Form State
   const [adminForm, setAdminForm] = useState({
-    username: "",
-    password: ""
+    name: "",
+    phone: ""
   });
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -82,24 +82,51 @@ export default function UnifiedLogin({
     }
   };
 
-  const handleAdminSubmit = (e: React.FormEvent) => {
+  const handleAdminSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
-    const cleanUsername = adminForm.username.trim().toLowerCase();
-    const cleanPassword = adminForm.password.trim();
+    const cleanName = adminForm.name.trim();
+    const cleanPhone = adminForm.phone.trim();
 
-    if (!cleanUsername || !cleanPassword) {
-      setErrorMessage("Username dan Password Admin harus diisi!");
+    if (!cleanName || !cleanPhone) {
+      setErrorMessage("Nama Lengkap dan Nomor WhatsApp Admin harus diisi!");
       return;
     }
 
-    // Standard admin verification: username 'admin', password 'ADMIN123' (case insensitive password or exact)
-    if (cleanUsername === "admin" && (cleanPassword === "ADMIN123" || cleanPassword === "admin123")) {
+    try {
+      // Look up member by phone number in Supabase
+      const { data, error } = await supabase
+        .from("members")
+        .select("*")
+        .eq("phone", cleanPhone);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        setErrorMessage("Nomor WhatsApp Anda belum terdaftar di sistem!");
+        return;
+      }
+
+      const member = data[0];
+
+      if (member.name.trim().toLowerCase() !== cleanName.toLowerCase()) {
+        setErrorMessage("Nama Lengkap tidak cocok dengan nomor WhatsApp yang diinput!");
+        return;
+      }
+
+      if (member.role !== "admin") {
+        setErrorMessage("Akses ditolak! Akun Anda tidak memiliki peran (role) Admin.");
+        return;
+      }
+
       localStorage.setItem("insaight_is_admin_logged_in", "true");
       onAdminLoginSuccess();
-    } else {
-      setErrorMessage("Username atau Password Admin salah! Hubungi owner.");
+    } catch (err: any) {
+      console.error("Error logging in Admin with Supabase:", err);
+      setErrorMessage(`Gagal menghubungi server database: ${err.message || err}`);
     }
   };
 
@@ -239,30 +266,30 @@ export default function UnifiedLogin({
                 className="space-y-4"
               >
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600 block text-left">Username Admin *</label>
+                  <label className="text-xs font-bold text-slate-600 block text-left">Nama Lengkap Admin *</label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                     <input
                       required
                       type="text"
-                      placeholder="Contoh: admin"
-                      value={adminForm.username}
-                      onChange={(e) => setAdminForm({ ...adminForm, username: e.target.value })}
+                      placeholder="Contoh: Rizqo Fadhilah"
+                      value={adminForm.name}
+                      onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })}
                       className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600 block text-left">Password Admin *</label>
+                  <label className="text-xs font-bold text-slate-600 block text-left">Nomor WhatsApp Admin *</label>
                   <div className="relative">
-                    <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                    <Phone className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
                     <input
                       required
-                      type="password"
-                      placeholder="Masukkan Password Admin"
-                      value={adminForm.password}
-                      onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                      type="tel"
+                      placeholder="Contoh: 082371068831"
+                      value={adminForm.phone}
+                      onChange={(e) => setAdminForm({ ...adminForm, phone: e.target.value })}
                       className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
                     />
                   </div>
@@ -270,10 +297,9 @@ export default function UnifiedLogin({
 
                 {/* Helpful Hint */}
                 <div className="bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl p-3.5 text-[11px] text-slate-600 leading-relaxed border-0 mt-2">
-                  <span className="font-bold text-[#7b6cff]">💡 Petunjuk Akses Admin:</span>
-                  <div className="mt-1 font-mono">
-                    Username: <span className="text-slate-800 font-bold">admin</span> <br />
-                    Password: <span className="text-slate-800 font-bold">ADMIN123</span>
+                  <span className="font-bold text-[#7b6cff]">💡 Info Akses Admin:</span>
+                  <div className="mt-1">
+                    Silakan gunakan nama lengkap dan nomor WhatsApp yang telah diatur sebagai <span className="font-bold text-slate-800">Admin</span> di database Supabase untuk masuk.
                   </div>
                 </div>
 

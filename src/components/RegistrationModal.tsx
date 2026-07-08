@@ -60,6 +60,26 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
     }
 
     try {
+      setErrorMsg("");
+      const promoInput = formData.promoCode.trim().toUpperCase();
+
+      // Check if the promo code exists in the database
+      const { data: promoOwnerData, error: promoError } = await supabase
+        .from("members")
+        .select("name")
+        .eq("promoCode", promoInput);
+
+      if (promoError) {
+        throw promoError;
+      }
+
+      if (!promoOwnerData || promoOwnerData.length === 0) {
+        setErrorMsg("Kode promo yang anda masukan tidak tersedia.");
+        return;
+      }
+
+      const referrerName = promoOwnerData[0].name;
+
       const nameFirstWord = formData.name.toUpperCase().trim().split(" ")[0].replace(/[^A-Z0-9]/g, "");
       const generatedPromo = `${nameFirstWord || "MEMBER"}_${Math.floor(100 + Math.random() * 900)}`;
       const newMember = {
@@ -69,7 +89,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
         promoCode: generatedPromo,
         joinedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
         status: "Pending", // Status is Pending until verified manually by admin
-        referredBy: formData.promoCode.trim().toUpperCase() || "-"
+        referredBy: referrerName
       };
 
       const { error } = await supabase.from("members").insert([newMember]);

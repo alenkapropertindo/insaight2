@@ -13,7 +13,8 @@ CREATE TABLE members (
   "promoCode" TEXT UNIQUE NOT NULL,
   "joinedAt" TEXT NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('Aktif', 'Pending')),
-  "referredBy" TEXT NOT NULL
+  "referredBy" TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'member' CHECK (role IN ('member', 'admin'))
 );
 
 -- 3. Create payouts table
@@ -35,12 +36,12 @@ ALTER TABLE members DISABLE ROW LEVEL SECURITY;
 ALTER TABLE payouts DISABLE ROW LEVEL SECURITY;
 
 -- 5. Seed initial mock members (Data Dummy)
-INSERT INTO members (id, name, phone, "promoCode", "joinedAt", status, "referredBy") VALUES
-('m-1', 'Rizqo Fadhilah', '082371068831', 'RIZQO_INS', '01 Juli 2026', 'Aktif', '-'),
-('m-2', 'Andi Saputra', '081234567890', 'ANDI_INS', '05 Juli 2026', 'Aktif', 'RIZQO_INS'),
-('m-3', 'Sarah Salsabila', '082233445566', 'SARAH_OK', '03 Juli 2026', 'Aktif', 'RIZQO_INS'),
-('m-4', 'Budi Setiawan', '089988776655', 'BUDI_99', '28 Juni 2026', 'Aktif', 'RIZQO_INS'),
-('m-5', 'Farhan Maulana', '085566778899', 'FARHAN_7', '25 Juni 2026', 'Pending', 'RIZQO_INS')
+INSERT INTO members (id, name, phone, "promoCode", "joinedAt", status, "referredBy", role) VALUES
+('m-1', 'Rizqo Fadhilah', '082371068831', 'RIZQO_INS', '01 Juli 2026', 'Aktif', '-', 'admin'),
+('m-2', 'Andi Saputra', '081234567890', 'ANDI_INS', '05 Juli 2026', 'Aktif', 'RIZQO_INS', 'member'),
+('m-3', 'Sarah Salsabila', '082233445566', 'SARAH_OK', '03 Juli 2026', 'Aktif', 'RIZQO_INS', 'member'),
+('m-4', 'Budi Setiawan', '089988776655', 'BUDI_99', '28 Juni 2026', 'Aktif', 'RIZQO_INS', 'member'),
+('m-5', 'Farhan Maulana', '085566778899', 'FARHAN_7', '25 Juni 2026', 'Pending', 'RIZQO_INS', 'member')
 ON CONFLICT (id) DO NOTHING;
 
 -- 6. Seed initial mock payouts (Data Dummy)

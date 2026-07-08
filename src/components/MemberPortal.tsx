@@ -45,6 +45,7 @@ interface MemberRecord {
   joinedAt: string;
   status: "Aktif" | "Pending";
   referredBy: string;
+  role?: "member" | "admin";
 }
 
 interface PayoutRecord {

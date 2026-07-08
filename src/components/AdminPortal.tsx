@@ -29,6 +29,7 @@ interface MemberRecord {
   joinedAt: string;
   status: "Aktif" | "Pending";
   referredBy: string;
+  role?: "member" | "admin";
 }
 
 interface PayoutRecord {
@@ -59,7 +60,8 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
     phone: "",
     promoCode: "",
     referredBy: "",
-    status: "Aktif" as "Aktif" | "Pending"
+    status: "Aktif" as "Aktif" | "Pending",
+    role: "member" as "member" | "admin"
   });
 
   const fetchData = async () => {
@@ -114,14 +116,15 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
       promoCode: newMember.promoCode.trim().toUpperCase() || `MEM-${Math.floor(100 + Math.random() * 900)}`,
       joinedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
       status: newMember.status,
-      referredBy: newMember.referredBy.trim().toUpperCase() || "-"
+      referredBy: newMember.referredBy.trim().toUpperCase() || "-",
+      role: newMember.role
     };
 
     try {
       const { error } = await supabase.from("members").insert([newRec]);
       if (error) throw error;
 
-      setNewMember({ name: "", phone: "", promoCode: "", referredBy: "", status: "Aktif" });
+      setNewMember({ name: "", phone: "", promoCode: "", referredBy: "", status: "Aktif", role: "member" });
       setShowAddForm(false);
       showToast("Anggota Baru berhasil ditambahkan ke sistem!");
       fetchData();
@@ -433,6 +436,18 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                 </select>
               </div>
 
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-600">Peran (Role) Member</label>
+                <select
+                  value={newMember.role}
+                  onChange={e => setNewMember({ ...newMember, role: e.target.value as "member" | "admin" })}
+                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:shadow-neu-inset cursor-pointer transition-all border-0 font-bold"
+                >
+                  <option value="member">Member</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
               <div className="flex items-end gap-2">
                 <button
                   type="submit"
@@ -544,6 +559,15 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                             <span className="text-[9px] font-mono font-bold text-[#7b6cff] bg-[#7b6cff]/10 border border-[#7b6cff]/20 px-1 py-0.2 rounded">
                               {member.promoCode}
                             </span>
+                            {member.role === "admin" ? (
+                              <span className="text-[9px] font-bold text-amber-700 bg-amber-100 border border-amber-200 px-1 py-0.2 rounded">
+                                Admin
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-1 py-0.2 rounded">
+                                Member
+                              </span>
+                            )}
                           </div>
                           <div className="text-[10px] text-slate-500 font-mono">{member.phone}</div>
                           <div className="text-[9px] text-slate-500 mt-0.5">Gabung: {member.joinedAt}</div>
