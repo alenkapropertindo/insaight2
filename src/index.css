@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(1.1);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 8s infinite ease-in-out;
+}
+
+/* Custom Neumorphism Styles */
+.bg-neumorph {
+  background-color: #e2e8f0; /* Ultra clean slate/off-white light grey */
+}
+
+/* Extruded elements (Convex / Soft Raised) */
+.shadow-neu-flat {
+  background: #e2e8f0;
+  box-shadow: 6px 6px 12px #c1c9d2, -6px -6px 12px #ffffff;
+}
+
+.shadow-neu-flat-sm {
+  background: #e2e8f0;
+  box-shadow: 3px 3px 6px #c1c9d2, -3px -3px 6px #ffffff;
+}
+
+.shadow-neu-flat-lg {
+  background: #e2e8f0;
+  box-shadow: 10px 10px 20px #c1c9d2, -10px -10px 20px #ffffff;
+}
+
+/* Sunken elements (Concave / Soft Inset) */
+.shadow-neu-inset {
+  background: #e2e8f0;
+  box-shadow: inset 4px 4px 8px #c1c9d2, inset -4px -4px 8px #ffffff;
+}
+
+.shadow-neu-inset-sm {
+  background: #e2e8f0;
+  box-shadow: inset 2px 2px 4px #c1c9d2, inset -2px -2px 4px #ffffff;
+}
+
+/* Accent Neumorphic elements (Soft colors with soft shadows) */
+.shadow-neu-accent {
+  background: #00d4ff;
+  box-shadow: 4px 4px 8px #00a4c5, -4px -4px 8px #33e0ff;
+}
+
+.shadow-neu-primary {
+  background: #7b6cff;
+  box-shadow: 4px 4px 8px #5f52cc, -4px -4px 8px #9786ff;
+}
+
+.shadow-neu-white {
+  background: #ffffff;
+  box-shadow: 4px 4px 8px #e2e8f0, -4px -4px 8px #ffffff;
+}
+
+/* Hover & Active states */
+.neu-clickable {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neu-clickable:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+}
+
+.neu-clickable:active {
+  transform: translateY(0.5px);
+  box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff;
+}
+
+/* Input elements focus */
+.neu-input {
+  background: #e2e8f0;
+  box-shadow: inset 3px 3px 6px #c1c9d2, inset -3px -3px 6px #ffffff;
+  transition: all 0.25s ease;
+}
+
+.neu-input:focus {
+  outline: none;
+  box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff, 0 0 0 2px #00d4ff/30;
+}

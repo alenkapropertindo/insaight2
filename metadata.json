@@ -1,0 +1,8 @@
+{
+  "name": "dbseting: insAight_kendari",
+  "description": "Komunitas AI Masa Depan di Kendari, Indonesia untuk kreator, pebisnis, dan profesional.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
