@@ -279,7 +279,7 @@ export default function UnifiedLogin({
         <div className="bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 sm:p-8 relative overflow-hidden">
           {/* Logo / Heading */}
           <div className="text-center space-y-2 mb-6">
-            <div className="w-14 h-14 rounded-2xl bg-[#e2e8f0] shadow-neu-inset text-[#7b6cff] flex items-center justify-center mx-auto shadow-sm">
+            <div className="w-14 h-14 rounded-2xl bg-[#e2e8f0] shadow-neu-inset text-slate-800 flex items-center justify-center mx-auto shadow-sm">
               <Sparkles className="w-7 h-7 animate-pulse" />
             </div>
             <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">Portal Akses insAIght</h2>
@@ -297,7 +297,7 @@ export default function UnifiedLogin({
               }}
               className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                 activeTab === "member"
-                  ? "shadow-neu-flat text-[#00d4ff] bg-[#e2e8f0]"
+                  ? "shadow-neu-flat text-slate-900 bg-[#e2e8f0]"
                   : "text-slate-500 hover:text-slate-800 bg-transparent"
               }`}
             >
@@ -311,7 +311,7 @@ export default function UnifiedLogin({
               }}
               className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                 activeTab === "admin"
-                  ? "shadow-neu-flat text-[#7b6cff] bg-[#e2e8f0]"
+                  ? "shadow-neu-flat text-slate-800 bg-[#e2e8f0]"
                   : "text-slate-500 hover:text-slate-800 bg-transparent"
               }`}
             >
@@ -387,7 +387,7 @@ export default function UnifiedLogin({
                         resetForgotState();
                         setShowForgotModal(true);
                       }}
-                      className="text-[11px] font-bold text-[#7b6cff] hover:underline bg-transparent border-0 cursor-pointer"
+                      className="text-[11px] font-bold text-slate-700 hover:text-slate-950 hover:underline bg-transparent border-0 cursor-pointer"
                       id="forgot-member-password-btn"
                     >
                       Lupa Password?
@@ -397,7 +397,7 @@ export default function UnifiedLogin({
 
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-sm shadow-neu-primary hover:opacity-95 active:scale-95 transition-all mt-4 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-xl bg-slate-900 text-white font-extrabold text-sm shadow-neu-primary hover:bg-slate-800 active:scale-95 transition-all mt-4 cursor-pointer"
                 >
                   Masuk Sebagai Member
                 </button>
@@ -455,7 +455,7 @@ export default function UnifiedLogin({
                         resetForgotState();
                         setShowForgotModal(true);
                       }}
-                      className="text-[11px] font-bold text-[#7b6cff] hover:underline bg-transparent border-0 cursor-pointer"
+                      className="text-[11px] font-bold text-slate-700 hover:text-slate-950 hover:underline bg-transparent border-0 cursor-pointer"
                       id="forgot-admin-password-btn"
                     >
                       Lupa Password?
@@ -465,7 +465,7 @@ export default function UnifiedLogin({
 
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-sm shadow-neu-primary hover:opacity-95 active:scale-95 transition-all mt-4 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-xl bg-slate-900 text-white font-extrabold text-sm shadow-neu-primary hover:bg-slate-800 active:scale-95 transition-all mt-4 cursor-pointer"
                 >
                   Masuk Sebagai Admin
                 </button>
@@ -548,7 +548,7 @@ export default function UnifiedLogin({
                     <button
                       type="submit"
                       disabled={forgotLoading}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-xs shadow-neu-primary hover:opacity-95 disabled:opacity-50 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 rounded-xl bg-slate-900 text-white font-extrabold text-xs shadow-neu-primary hover:bg-slate-800 disabled:opacity-50 transition-all cursor-pointer"
                     >
                       {forgotLoading ? "Memverifikasi..." : "Verifikasi Akun"}
                     </button>
@@ -564,7 +564,7 @@ export default function UnifiedLogin({
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full mt-2.5 py-2.5 rounded-xl bg-[#e2e8f0] text-emerald-600 font-extrabold text-xs shadow-neu-flat hover:shadow-neu-inset flex items-center justify-center gap-2 transition-all"
+                      className="w-full mt-2.5 py-2.5 rounded-xl bg-[#e2e8f0] text-slate-800 hover:text-slate-950 font-extrabold text-xs shadow-neu-flat hover:shadow-neu-inset flex items-center justify-center gap-2 transition-all"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       <span>Hubungi Admin via WhatsApp</span>
@@ -608,7 +608,7 @@ export default function UnifiedLogin({
                     <button
                       type="submit"
                       disabled={forgotLoading}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-xs shadow-neu-primary hover:opacity-95 disabled:opacity-50 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 rounded-xl bg-slate-900 text-white font-extrabold text-xs shadow-neu-primary hover:bg-slate-800 disabled:opacity-50 transition-all cursor-pointer"
                     >
                       {forgotLoading ? "Menyimpan..." : "Simpan Password Baru"}
                     </button>
@@ -618,7 +618,7 @@ export default function UnifiedLogin({
 
               {forgotStep === 3 && (
                 <div className="space-y-5 text-center">
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto text-emerald-500 shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center mx-auto text-slate-850 shadow-sm">
                     <CheckCircle className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
@@ -630,7 +630,7 @@ export default function UnifiedLogin({
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(false)}
-                    className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-xs shadow-neu-primary hover:opacity-95 transition-all cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-slate-900 text-white font-extrabold text-xs shadow-neu-primary hover:bg-slate-800 transition-all cursor-pointer"
                   >
                     Masuk Sekarang
                   </button>

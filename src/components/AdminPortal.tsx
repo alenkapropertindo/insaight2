@@ -145,12 +145,49 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
   };
 
   const executeApprovePayout = async (id: string) => {
+    const targetPayout = payouts.find(p => p.id === id);
+    if (!targetPayout) {
+      showToast("Payout tidak ditemukan.");
+      return;
+    }
+
     try {
       const { error } = await supabase.from("payouts").update({ status: "Selesai" }).eq("id", id);
       if (error) throw error;
 
-      showToast("Permintaan pencairan komisi disetujui & dicairkan! 🎉");
+      // Find the requesting member to get their phone number
+      const requesterMember = members.find(
+        m => (m.promoCode && m.promoCode.toUpperCase() === targetPayout.refCode.toUpperCase()) ||
+             (m.name && m.name.toLowerCase() === targetPayout.memberName.toLowerCase()) ||
+             (m.username && m.username.toLowerCase() === targetPayout.memberName.toLowerCase())
+      );
+
+      const memberPhone = requesterMember ? requesterMember.phone : "";
+
+      showToast("Permintaan pencairan komisi disetujui! Mengalihkan ke WhatsApp member... 🎉");
       fetchData();
+
+      if (memberPhone) {
+        let cleanedPhone = memberPhone.replace(/[^0-9]/g, "");
+        if (cleanedPhone.startsWith("0")) {
+          cleanedPhone = "62" + cleanedPhone.slice(1);
+        }
+
+        const waText = `Halo *${targetPayout.walletOwner || targetPayout.memberName}*, kami dari Admin *insAIght Kendari* ingin menginformasikan bahwa pengajuan pencairan komisi Anda sebesar *Rp ${targetPayout.amount.toLocaleString("id-ID")}* telah disetujui dan dicairkan. 🎉
+
+*Detail Pengiriman:*
+• Metode: *${targetPayout.walletType}*
+• No Rekening/E-Wallet: *${targetPayout.walletNumber}*
+• Atas Nama: *${targetPayout.walletOwner}*
+
+Mohon dicek kembali apakah dananya sudah masuk ke rekening/e-wallet Anda ya. Terima kasih atas kontribusinya! 🙏🚀`;
+
+        setTimeout(() => {
+          window.open(`https://wa.me/${cleanedPhone}?text=${encodeURIComponent(waText)}`, "_blank");
+        }, 1500);
+      } else {
+        console.warn("No phone number found for member:", targetPayout.memberName);
+      }
     } catch (err: any) {
       console.error(err);
       showToast(`Gagal menyetujui payout: ${err.message || err}`);
@@ -323,10 +360,10 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
   });
 
   return (
-    <div className="relative min-h-screen bg-[#e2e8f0] text-slate-700 pt-24 pb-20 px-4 sm:px-6 lg:px-8 z-10 selection:bg-[#7b6cff]/25 selection:text-[#7b6cff]">
+    <div className="relative min-h-screen bg-[#e2e8f0] text-slate-700 pt-24 pb-20 px-4 sm:px-6 lg:px-8 z-10 selection:bg-slate-900/10 selection:text-slate-800">
       {/* Notification Toast */}
       {notification && (
-        <div className="fixed top-24 right-4 z-50 max-w-sm bg-[#e2e8f0] shadow-neu-flat text-[#7b6cff] px-4 py-3 rounded-xl flex items-center gap-2 text-xs font-bold animate-bounce">
+        <div className="fixed top-24 right-4 z-50 max-w-sm bg-[#e2e8f0] shadow-neu-flat text-slate-950 px-4 py-3 rounded-xl flex items-center gap-2 text-xs font-bold animate-bounce">
           <CheckCircle className="w-4.5 h-4.5 shrink-0" />
           <span>{notification}</span>
         </div>
@@ -346,7 +383,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#7b6cff] bg-[#e2e8f0] shadow-neu-inset-sm px-2.5 py-0.5 rounded-full border-0 uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-800 bg-[#e2e8f0] shadow-neu-inset-sm px-2.5 py-0.5 rounded-full border-0 uppercase tracking-wider">
                   Panel Administrator
                 </span>
               </div>
@@ -373,7 +410,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
             <div className="text-xs text-slate-500 font-bold mb-1 flex items-center justify-between">
               <span>Total Terdaftar</span>
-              <Users className="w-4 h-4 text-[#7b6cff]" />
+              <Users className="w-4 h-4 text-slate-800" />
             </div>
             <div className="text-2xl font-black text-slate-800">{members.length}</div>
             <span className="text-[10px] text-slate-400 font-bold">Anggota Komunitas</span>
@@ -382,9 +419,9 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
             <div className="text-xs text-slate-500 font-bold mb-1 flex items-center justify-between">
               <span>Komisi Cair (Lunas)</span>
-              <DollarSign className="w-4 h-4 text-emerald-500" />
+              <DollarSign className="w-4 h-4 text-slate-800" />
             </div>
-            <div className="text-2xl font-black text-emerald-600">
+            <div className="text-2xl font-black text-slate-900">
               Rp {totalCommisionsPaid.toLocaleString("id-ID")}
             </div>
             <span className="text-[10px] text-slate-400 font-bold">Telah dikirim ke Wallet</span>
@@ -393,9 +430,9 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
             <div className="text-xs text-slate-500 font-bold mb-1 flex items-center justify-between">
               <span>Komisi Pending</span>
-              <Clock className="w-4 h-4 text-amber-500" />
+              <Clock className="w-4 h-4 text-slate-500" />
             </div>
-            <div className="text-2xl font-black text-amber-600">
+            <div className="text-2xl font-black text-slate-700">
               Rp {totalCommissionsPending.toLocaleString("id-ID")}
             </div>
             <span className="text-[10px] text-slate-400 font-bold">Menunggu Verifikasi Admin</span>
@@ -404,9 +441,9 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
             <div className="text-xs text-slate-500 font-bold mb-1 flex items-center justify-between">
               <span>Rata-rata Konversi</span>
-              <TrendingUp className="w-4 h-4 text-[#7b6cff]" />
+              <TrendingUp className="w-4 h-4 text-slate-600" />
             </div>
-            <div className="text-2xl font-black text-[#7b6cff]">
+            <div className="text-2xl font-black text-slate-800">
               {members.length > 0 ? ((members.filter(m => m.referredBy !== "-").length / members.length) * 100).toFixed(0) : 0}%
             </div>
             <span className="text-[10px] text-slate-400 font-bold">Melalui Jalur Referral</span>
@@ -438,7 +475,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                     onClick={() => setMemberFilter(tab)}
                     className={`px-3 py-1 rounded-md font-bold transition-all ${
                       memberFilter === tab
-                        ? "shadow-neu-inset text-[#7b6cff] bg-[#e2e8f0]"
+                        ? "shadow-neu-inset text-slate-950 bg-[#e2e8f0]"
                         : "text-slate-500 hover:text-slate-800 bg-transparent"
                     }`}
                   >
@@ -457,7 +494,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                     onClick={() => setPayoutFilter(tab)}
                     className={`px-3 py-1 rounded-md font-bold transition-all ${
                       payoutFilter === tab
-                        ? "shadow-neu-inset text-[#7b6cff] bg-[#e2e8f0]"
+                        ? "shadow-neu-inset text-slate-950 bg-[#e2e8f0]"
                         : "text-slate-500 hover:text-slate-800 bg-transparent"
                     }`}
                   >
@@ -476,7 +513,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           <div className="lg:col-span-7 bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 space-y-4 border-0">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#7b6cff]" />
+                <Users className="w-5 h-5 text-slate-800" />
                 <span>Seluruh Anggota Komunitas ({filteredMembers.length})</span>
               </h3>
             </div>
@@ -505,11 +542,11 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                         <td className="p-3.5">
                           <div className="font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
                             <span>{member.username || member.name}</span>
-                            <span className="text-[9px] font-mono font-bold text-[#7b6cff] bg-[#7b6cff]/10 border border-[#7b6cff]/20 px-1 py-0.2 rounded">
+                            <span className="text-[9px] font-mono font-bold text-slate-900 bg-slate-300 border border-slate-400/20 px-1 py-0.2 rounded">
                               {member.promoCode}
                             </span>
                             {member.role === "admin" ? (
-                              <span className="text-[9px] font-bold text-amber-700 bg-amber-100 border border-amber-200 px-1 py-0.2 rounded">
+                              <span className="text-[9px] font-bold text-slate-850 bg-slate-300 border border-slate-400/20 px-1 py-0.2 rounded">
                                 Admin
                               </span>
                             ) : (
@@ -528,13 +565,13 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                           {member.status === "Pending" ? (
                             <button
                               onClick={() => triggerVerifyMember(member.id, member.username || member.name || "Member")}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-[10px] border bg-amber-100 hover:bg-emerald-100 text-amber-700 hover:text-emerald-700 border-amber-200 hover:border-emerald-200 animate-pulse transition-all cursor-pointer shadow-sm hover:shadow"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-[10px] border bg-slate-300 hover:bg-slate-400 text-slate-800 hover:text-slate-950 border-slate-400/20 transition-all cursor-pointer shadow-sm hover:shadow"
                               title="Klik untuk Aktifkan & Verifikasi Member"
                             >
                               <span>●</span> {member.status} (Aktifkan)
                             </button>
                           ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-[10px] border bg-emerald-100 text-emerald-700 border-emerald-200">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-[10px] border bg-slate-200 text-slate-700 border-slate-300">
                               <span>●</span> {member.status}
                             </span>
                           )}
@@ -543,7 +580,15 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                           {(() => {
                               const pStatus = getPayoutStatus(member);
                               return (
-                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${pStatus.color}`}>
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
+                                  pStatus.text === "Cair" 
+                                    ? "bg-slate-300 text-slate-850 border-slate-400/20"
+                                    : pStatus.text === "Diajukan"
+                                    ? "bg-slate-250 text-slate-700 border-slate-300"
+                                    : pStatus.text === "Ditolak"
+                                    ? "bg-slate-250 text-slate-400 border-slate-300/40 line-through"
+                                    : "bg-slate-200 text-slate-500 border-slate-300"
+                                }`}>
                                   <span>●</span> {pStatus.text}
                                 </span>
                               );
@@ -569,7 +614,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           {/* COLUMN 2: PAYOUT REQUESTS (5 cols) */}
           <div className="lg:col-span-5 bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 space-y-4 border-0">
             <h3 className="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-emerald-500" />
+              <DollarSign className="w-5 h-5 text-slate-800" />
               <span>Pencairan Payout ({filteredPayouts.length})</span>
             </h3>
 
@@ -591,10 +636,10 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                       </div>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                         payout.status === "Selesai"
-                          ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                          ? "bg-slate-300 text-slate-850 border-slate-400/20"
                           : payout.status === "Menunggu"
-                          ? "bg-amber-100 text-amber-700 border-amber-200 animate-pulse"
-                          : "bg-red-100 text-red-700 border-red-200"
+                          ? "bg-slate-200 text-slate-600 border-slate-300"
+                          : "bg-slate-250 text-slate-400 border-slate-300/40 line-through"
                       }`}>
                         {payout.status}
                       </span>
@@ -604,7 +649,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                       <div><strong className="text-slate-400">Tujuan:</strong> {payout.walletType}</div>
                       <div><strong className="text-slate-400">No/ID:</strong> {payout.walletNumber}</div>
                       <div><strong className="text-slate-400">A/N:</strong> {payout.walletOwner}</div>
-                      <div className="text-right text-xs font-black text-[#7b6cff] mt-1.5 pt-1 border-t border-slate-300">
+                      <div className="text-right text-xs font-black text-slate-900 mt-1.5 pt-1 border-t border-slate-300">
                         Rp {payout.amount.toLocaleString("id-ID")}
                       </div>
                     </div>
@@ -613,7 +658,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                       <div className="flex gap-2">
                         <button
                           onClick={() => triggerApprovePayout(payout.id, payout.memberName, payout.amount)}
-                          className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-extrabold rounded-lg flex items-center justify-center gap-1 transition-all shadow-sm cursor-pointer"
+                          className="flex-1 py-1.5 bg-slate-950 hover:bg-slate-900 text-white text-[10px] font-extrabold rounded-lg flex items-center justify-center gap-1 transition-all shadow-sm cursor-pointer"
                         >
                           <Check className="w-3.5 h-3.5" />
                           <span>Setujui (Lunas)</span>
@@ -661,10 +706,10 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
               <div className="flex justify-center">
                 <div className={`p-3 rounded-full shadow-neu-inset ${
                   confirmModal.variant === "success" 
-                    ? "text-emerald-500" 
+                    ? "text-slate-800" 
                     : confirmModal.variant === "danger" 
-                    ? "text-rose-500" 
-                    : "text-amber-500"
+                    ? "text-slate-400" 
+                    : "text-slate-600"
                 }`}>
                   <AlertCircle className="w-8 h-8 animate-pulse" />
                 </div>
@@ -692,10 +737,10 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                   onClick={confirmModal.onConfirm}
                   className={`flex-1 py-2.5 rounded-xl text-white text-xs font-extrabold transition-all shadow-md cursor-pointer hover:opacity-90 ${
                     confirmModal.variant === "success"
-                      ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/10"
+                      ? "bg-slate-900 hover:bg-slate-800 shadow-slate-900/10"
                       : confirmModal.variant === "danger"
-                      ? "bg-rose-500 hover:bg-rose-600 shadow-rose-500/10"
-                      : "bg-[#7b6cff] hover:bg-[#6c5eff] shadow-[#7b6cff]/10"
+                      ? "bg-slate-600 hover:bg-slate-500 shadow-slate-600/10"
+                      : "bg-slate-800 hover:bg-slate-700 shadow-slate-800/10"
                   }`}
                 >
                   {confirmModal.confirmText || "Ya, Yakin"}

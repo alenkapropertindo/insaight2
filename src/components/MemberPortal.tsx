@@ -202,8 +202,8 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
       if (savedUsername) {
         // Build update object
         const updateData: any = {
-          phone: cleanPhone,
-          promoCode: formattedCode
+          phone: cleanPhone
+          // promoCode is permanently locked to prevent editing by member or admin
         };
 
         if (hasNewPassword) {
@@ -221,9 +221,7 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
         }
       }
 
-      setRefCode(formattedCode);
       setLoginForm(prev => ({ ...prev, phone: cleanPhone }));
-      localStorage.setItem("insaight_ref_code", formattedCode);
       localStorage.setItem("insaight_member_phone", cleanPhone);
       localStorage.setItem("insaight_wallet_type", walletType);
       localStorage.setItem("insaight_wallet_num", walletNumber);
@@ -424,10 +422,10 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
   };
 
   return (
-    <div className="relative min-h-screen bg-[#e2e8f0] text-slate-700 pt-24 pb-20 px-4 sm:px-6 lg:px-8 z-10 selection:bg-[#7b6cff]/25 selection:text-[#7b6cff]">
+    <div className="relative min-h-screen bg-[#e2e8f0] text-slate-700 pt-24 pb-20 px-4 sm:px-6 lg:px-8 z-10 selection:bg-slate-300 selection:text-slate-900">
       {/* Floating alert */}
       {notification && (
-        <div className="fixed top-24 right-4 z-50 max-w-sm bg-emerald-100 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl shadow-md flex items-center gap-2 text-xs font-semibold animate-bounce">
+        <div className="fixed top-24 right-4 z-50 max-w-sm bg-slate-200 border border-slate-300 text-slate-800 px-4 py-3 rounded-xl shadow-md flex items-center gap-2 text-xs font-semibold animate-bounce">
           <CheckCircle className="w-4.5 h-4.5 shrink-0" />
           <span>{notification}</span>
         </div>
@@ -446,7 +444,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#7b6cff] bg-[#e2e8f0] shadow-neu-inset-sm px-2.5 py-0.5 rounded-full border-0 uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-850 bg-[#e2e8f0] shadow-neu-inset-sm px-2.5 py-0.5 rounded-full border-0 uppercase tracking-wider">
                   Program Affiliate
                 </span>
               </div>
@@ -462,7 +460,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
           <div className="max-w-md mx-auto py-12">
             <div className="bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 sm:p-8 relative">
               <div className="text-center space-y-2 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-[#e2e8f0] shadow-neu-inset text-[#7b6cff] flex items-center justify-center mx-auto shadow-sm">
+                <div className="w-14 h-14 rounded-2xl bg-[#e2e8f0] shadow-neu-inset text-slate-800 flex items-center justify-center mx-auto shadow-sm">
                   <User className="w-7 h-7" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800">Masuk Area Member</h3>
@@ -498,7 +496,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
 
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-sm shadow-neu-primary hover:opacity-95 active:scale-95 transition-all mt-6"
+                  className="w-full py-3 px-4 rounded-xl bg-slate-900 text-white font-extrabold text-sm shadow-neu-primary hover:bg-slate-800 active:scale-95 transition-all mt-6"
                 >
                   Masuk Sekarang
                 </button>
@@ -507,7 +505,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
               <div className="mt-6 pt-4 border-t border-slate-300 text-center">
                 <button 
                   onClick={onBackToHome}
-                  className="text-xs text-[#7b6cff] hover:underline font-bold"
+                  className="text-xs text-slate-700 hover:text-slate-950 hover:underline font-bold"
                 >
                   Kembali ke Halaman Utama
                 </button>
@@ -521,11 +519,11 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
             {/* Mobile Top Toggle Bar (visible only on mobile) */}
             <div className="lg:hidden w-full bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-3 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#e2e8f0] shadow-neu-inset flex items-center justify-center text-xs font-black text-[#7b6cff]">
+                <div className="w-8 h-8 rounded-full bg-[#e2e8f0] shadow-neu-inset flex items-center justify-center text-xs font-black text-slate-800">
                   {loginForm.name.substring(0, 2).toUpperCase()}
                 </div>
                 <div className="text-left">
-                  <span className="text-[10px] font-bold text-[#7b6cff] uppercase tracking-wider block">Navigasi</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Navigasi</span>
                   <span className="text-xs font-bold text-slate-800">
                     {activeTab === "dashboard" ? "Affiliate Dashboard" : "Pengaturan Profil"}
                   </span>
@@ -549,7 +547,6 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
               }`}
             >
               <div>
-                {/* Sidebar Header & Toggle Button (Desktop Only) */}
                 <div className="flex items-center justify-between mb-4 px-1">
                   {!isSidebarCollapsed && (
                     <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
@@ -571,13 +568,13 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     <>
                       {/* Collapsed view on desktop, fully shown as wide panel on mobile */}
                       <div 
-                        className="hidden lg:flex w-10 h-10 rounded-full bg-[#e2e8f0] shadow-neu-inset items-center justify-center text-xs font-black text-[#7b6cff] cursor-pointer mx-auto"
+                        className="hidden lg:flex w-10 h-10 rounded-full bg-[#e2e8f0] shadow-neu-inset items-center justify-center text-xs font-black text-slate-800 cursor-pointer mx-auto"
                         title={`${loginForm.name} (Kode: ${refCode})`}
                       >
                         {loginForm.name.substring(0, 2).toUpperCase()}
                       </div>
                       <div className="lg:hidden w-full flex items-center gap-3 bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-3">
-                        <div className="w-10 h-10 rounded-full bg-[#e2e8f0] shadow-neu-inset flex items-center justify-center text-sm font-black text-[#7b6cff] shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-[#e2e8f0] shadow-neu-inset flex items-center justify-center text-sm font-black text-slate-800 shrink-0">
                           {loginForm.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div className="text-left overflow-hidden">
@@ -592,7 +589,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     </>
                   ) : (
                     <div className="w-full flex items-center gap-3 bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-3">
-                      <div className="w-10 h-10 rounded-full bg-[#e2e8f0] shadow-neu-inset flex items-center justify-center text-sm font-black text-[#7b6cff] shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#e2e8f0] shadow-neu-inset flex items-center justify-center text-sm font-black text-slate-800 shrink-0">
                         {loginForm.name.substring(0, 2).toUpperCase()}
                       </div>
                       <div className="text-left overflow-hidden">
@@ -618,7 +615,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     }}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold transition-all ${
                       activeTab === "dashboard"
-                        ? "shadow-neu-inset text-[#7b6cff] bg-[#e2e8f0]"
+                        ? "shadow-neu-inset text-slate-900 bg-[#e2e8f0]"
                         : "text-slate-600 hover:text-slate-800 hover:shadow-neu-inset-sm bg-transparent"
                     } ${isSidebarCollapsed ? "lg:justify-center justify-start" : "justify-start"}`}
                     title="Affiliate Dashboard"
@@ -638,7 +635,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     }}
                     className={`w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold transition-all ${
                       activeTab === "profile"
-                        ? "shadow-neu-inset text-[#7b6cff] bg-[#e2e8f0]"
+                        ? "shadow-neu-inset text-slate-900 bg-[#e2e8f0]"
                         : "text-slate-600 hover:text-slate-800 hover:shadow-neu-inset-sm bg-transparent"
                     } ${isSidebarCollapsed ? "lg:justify-center justify-start" : "justify-start"}`}
                     title="Pengaturan Referral & Profil"
@@ -693,7 +690,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
                       <div className="flex items-center justify-between text-slate-500 mb-1">
                         <span className="text-xs font-bold">Total Klik</span>
-                        <TrendingUp className="w-4 h-4 text-[#7b6cff]" />
+                        <TrendingUp className="w-4 h-4 text-slate-600" />
                       </div>
                       <div className="text-2xl font-black text-slate-800">{totalClicks}</div>
                       <span className="text-[10px] text-slate-400 font-semibold">Kunjungan tautan unik</span>
@@ -702,18 +699,18 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
                       <div className="flex items-center justify-between text-slate-500 mb-1">
                         <span className="text-xs font-bold">Total Referral</span>
-                        <Users className="w-4 h-4 text-[#7b6cff]" />
+                        <Users className="w-4 h-4 text-slate-600" />
                       </div>
                       <div className="text-2xl font-black text-slate-800">{referrals.length}</div>
-                      <span className="text-[10px] text-emerald-600 font-bold">{verifiedReferralsCount} Terverifikasi</span>
+                      <span className="text-[10px] text-slate-600 font-bold">{verifiedReferralsCount} Terverifikasi</span>
                     </div>
 
                     <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
                       <div className="flex items-center justify-between text-slate-500 mb-1">
                         <span className="text-xs font-bold">Komisi Cair</span>
-                        <DollarSign className="w-4 h-4 text-emerald-600" />
+                        <DollarSign className="w-4 h-4 text-slate-600" />
                       </div>
-                      <div className="text-2xl font-black text-[#7b6cff]">
+                      <div className="text-2xl font-black text-slate-950">
                         Rp {totalEarnings.toLocaleString("id-ID")}
                       </div>
                       <span className="text-[10px] text-slate-400 font-semibold">Siap dicairkan</span>
@@ -722,9 +719,9 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 border-0">
                       <div className="flex items-center justify-between text-slate-500 mb-1">
                         <span className="text-xs font-bold">Komisi Menunggu</span>
-                        <Wallet className="w-4 h-4 text-amber-600" />
+                        <Wallet className="w-4 h-4 text-slate-500" />
                       </div>
-                      <div className="text-2xl font-black text-amber-600">
+                      <div className="text-2xl font-black text-slate-700">
                         Rp {pendingEarnings.toLocaleString("id-ID")}
                       </div>
                       <span className="text-[10px] text-slate-400 font-semibold">Menunggu pembayaran</span>
@@ -734,17 +731,17 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                   {/* Referral Link & Promo Share Board */}
                   <div className="shadow-neu-flat rounded-3xl p-6 space-y-4 bg-[#e2e8f0] border-0">
                     <div className="flex items-center gap-2">
-                      <Share2 className="w-5 h-5 text-[#7b6cff]" />
+                      <Share2 className="w-5 h-5 text-slate-800" />
                       <h3 className="text-lg font-bold text-slate-800 tracking-tight">Bagikan & Cari Komisi</h3>
                     </div>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      Kamu mendapatkan komisi sebesar <span className="text-emerald-600 font-extrabold">Rp 50.000,-</span> untuk setiap pendaftar baru yang menggunakan kode promo atau link referral milikmu.
+                      Kamu mendapatkan komisi sebesar <span className="text-slate-900 font-extrabold">Rp 50.000,-</span> untuk setiap pendaftar baru yang menggunakan kode promo atau link referral milikmu.
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                       {/* Unique Referral Link Card */}
                       <div className="bg-[#e2e8f0] shadow-neu-inset rounded-xl p-4 space-y-2 text-left border-0">
-                        <div className="text-xs font-bold text-[#7b6cff] flex items-center gap-1.5">
+                        <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                           <ExternalLink className="w-3.5 h-3.5" />
                           <span>Tautan Referral Kamu:</span>
                         </div>
@@ -754,7 +751,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                           </span>
                           <button
                             onClick={copyToClipboard}
-                            className="p-1.5 bg-[#e2e8f0] shadow-neu-flat hover:shadow-neu-inset text-[#7b6cff] rounded-md transition-all shrink-0"
+                            className="p-1.5 bg-[#e2e8f0] shadow-neu-flat hover:shadow-neu-inset text-slate-800 rounded-md transition-all shrink-0"
                             title="Salin Tautan"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -764,17 +761,17 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
 
                       {/* Code Promo Card */}
                       <div className="bg-[#e2e8f0] shadow-neu-inset rounded-xl p-4 space-y-2 text-left border-0">
-                        <div className="text-xs font-bold text-[#7b6cff] flex items-center gap-1.5">
+                        <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                           <Award className="w-3.5 h-3.5" />
                           <span>Kode Promo Kamu:</span>
                         </div>
                         <div className="bg-[#e2e8f0] shadow-neu-inset-sm rounded-lg p-2.5 flex items-center justify-between gap-2 border-0">
-                          <span className="text-sm font-black font-mono text-[#7b6cff] tracking-wider">
+                          <span className="text-sm font-black font-mono text-slate-900 tracking-wider">
                             {refCode}
                           </span>
                           <button
                             onClick={copyPromoOnly}
-                            className="p-1.5 bg-[#e2e8f0] shadow-neu-flat hover:shadow-neu-inset text-[#7b6cff] rounded-md transition-all shrink-0"
+                            className="p-1.5 bg-[#e2e8f0] shadow-neu-flat hover:shadow-neu-inset text-slate-800 rounded-md transition-all shrink-0"
                             title="Salin Kode Promo"
                           >
                             <Copy className="w-3.5 h-3.5" />
@@ -785,21 +782,21 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
 
                     {/* Commission Cash-out CTA */}
                     {claimableEarnings > 0 && (
-                      <div className="bg-emerald-50 border border-emerald-100 shadow-sm rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
+                      <div className="bg-slate-200 border border-slate-300 shadow-sm rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
                         <div className="flex gap-3 items-start text-left">
-                          <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
+                          <div className="w-10 h-10 rounded-full bg-slate-300 text-slate-800 flex items-center justify-center shrink-0 border border-slate-400/20">
                             <Wallet className="w-5 h-5" />
                           </div>
                           <div>
                             <h4 className="text-sm font-bold text-slate-800">Komisi Siap Dicairkan!</h4>
                             <p className="text-xs text-slate-600 mt-0.5">
-                              Ada saldo komisi sebesar <span className="text-green-600 font-bold">Rp {claimableEarnings.toLocaleString("id-ID")}</span> dari referal aktif yang belum kamu ajukan.
+                              Ada saldo komisi sebesar <span className="text-slate-950 font-bold">Rp {claimableEarnings.toLocaleString("id-ID")}</span> dari referal aktif yang belum kamu ajukan.
                             </p>
                           </div>
                         </div>
                         <button
                           onClick={handleRequestAllPayouts}
-                          className="w-full sm:w-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold rounded-xl shadow-md flex items-center justify-center gap-1.5 shrink-0 transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                          className="w-full sm:w-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold rounded-xl shadow-md flex items-center justify-center gap-1.5 shrink-0 transition-transform hover:-translate-y-0.5 active:translate-y-0"
                         >
                           <Phone className="w-3.5 h-3.5 fill-white" />
                           <span>Ajukan & Tarik Semua via WA</span>
@@ -811,7 +808,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                   {/* Referral History / Ledger */}
                   <div className="bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 space-y-4 border-0">
                     <h3 className="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                      <Users className="w-4.5 h-4.5 text-[#7b6cff]" />
+                      <Users className="w-4.5 h-4.5 text-slate-800" />
                       <span>Daftar Transaksi Referral</span>
                     </h3>
 
@@ -841,8 +838,8 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                                 <td className="p-4">
                                   <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                                     item.memberStatus === "Aktif"
-                                      ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                                      : "bg-amber-100 text-amber-700 border-amber-200 animate-pulse"
+                                      ? "bg-slate-300 text-slate-850 border-slate-400/20"
+                                      : "bg-slate-200 text-slate-600 border-slate-300"
                                   }`}>
                                     <span>●</span> {item.memberStatus}
                                   </span>
@@ -851,13 +848,13 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                                   <div className="flex items-center gap-2">
                                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
                                       item.payoutStatus === "Cair"
-                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                                        ? "bg-slate-300 text-slate-850 border-slate-400/20"
                                         : item.payoutStatus === "Diajukan"
-                                        ? "bg-amber-100 text-amber-700 border-amber-200 animate-pulse"
+                                        ? "bg-slate-250 text-slate-700 border-slate-300"
                                         : item.payoutStatus === "Pending"
-                                        ? "bg-blue-100 text-blue-700 border-blue-200"
+                                        ? "bg-slate-200 text-slate-600 border-slate-300"
                                         : item.payoutStatus === "Ditolak"
-                                        ? "bg-red-100 text-red-700 border-red-200"
+                                        ? "bg-slate-250 text-slate-400 border-slate-300/40 line-through"
                                         : "bg-slate-200 text-slate-500 border-slate-300"
                                     }`}>
                                       <span>●</span> {item.payoutStatus}
@@ -865,7 +862,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                                     {item.payoutStatus === "Pending" && (
                                       <button
                                         onClick={() => handleRequestIndividualPayout(item.id, item.name)}
-                                        className="px-2 py-0.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center gap-1 shrink-0"
+                                        className="px-2 py-0.5 bg-slate-800 hover:bg-slate-900 text-white text-[10px] font-bold rounded-md shadow-sm transition-all flex items-center gap-1 shrink-0"
                                         title="Ajukan pembayaran komisi ini"
                                       >
                                         Ajukan
@@ -901,22 +898,33 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                       
                       {/* Left: Referral Code customization */}
                       <div className="bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-5 space-y-4 border-0">
-                        <h4 className="text-xs font-bold text-[#7b6cff] uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                           Kode Referral & Promo
                         </h4>
 
                         <div className="space-y-1.5">
-                          <label className="text-xs font-bold text-slate-600">Kode Kustom</label>
-                          <input
-                            required
-                            type="text"
-                            value={refCode}
-                            onChange={(e) => setRefCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ""))}
-                            placeholder="Contoh: RIZQO_INS"
-                            className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-[#7b6cff] font-extrabold uppercase tracking-wider focus:outline-none focus:shadow-neu-inset transition-all border-0"
-                          />
+                          <div className="flex justify-between items-center">
+                            <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                              <span>Kode Kustom</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-300 text-slate-600 text-[9px] font-extrabold border border-slate-400/20 uppercase tracking-wider">
+                                <Lock className="w-2.5 h-2.5" />
+                                <span>Permanen</span>
+                              </span>
+                            </label>
+                          </div>
+                          <div className="relative">
+                            <input
+                              readOnly
+                              type="text"
+                              value={refCode}
+                              className="w-full bg-slate-300/40 shadow-neu-inset-sm rounded-xl pl-4 pr-10 py-2.5 text-sm text-slate-500 font-extrabold uppercase tracking-wider focus:outline-none cursor-not-allowed border-0 select-none"
+                            />
+                            <div className="absolute right-3.5 top-3.5 text-slate-400">
+                              <Lock className="w-3.5 h-3.5" />
+                            </div>
+                          </div>
                           <p className="text-[10px] text-slate-400 font-bold leading-relaxed mt-1">
-                            * Hanya boleh huruf besar, angka, dan underscore (_). Kode ini akan diinputkan oleh temanmu pada kolom "Kode Promo" saat mereka mendaftar komunitas.
+                            * Kode referral Anda bersifat permanen dan tidak dapat diubah oleh member maupun admin demi menjamin keandalan sistem pelacakan komisi rujukan Anda.
                           </p>
                         </div>
 
@@ -938,7 +946,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
 
                       {/* Right: Payment detail */}
                       <div className="bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-5 space-y-4 border-0">
-                        <h4 className="text-xs font-bold text-[#7b6cff] uppercase tracking-wider">
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                           Tujuan Payout / Pencairan
                         </h4>
 
@@ -987,8 +995,8 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
 
                     {/* Atur Ulang Password Section */}
                     <div className="bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-5 space-y-4 border-0 mt-6" id="member-password-reset-section">
-                      <h4 className="text-xs font-bold text-[#7b6cff] uppercase tracking-wider flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-[#7b6cff]" />
+                      <h4 className="text-xs font-bold text-slate-850 uppercase tracking-wider flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-slate-800" />
                         <span>Atur Ulang Password Akun</span>
                       </h4>
                       
@@ -1043,7 +1051,7 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     <div className="flex justify-end pt-4 border-t border-slate-300">
                       <button
                         type="submit"
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-sm shadow-neu-primary hover:opacity-95 active:scale-95 transition-all"
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 text-white font-extrabold text-sm shadow-neu-primary hover:bg-slate-800 active:scale-95 transition-all"
                       >
                         <Save className="w-4 h-4" />
                         <span>Simpan Pengaturan</span>

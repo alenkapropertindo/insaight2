@@ -55,13 +55,13 @@
 
 /* Accent Neumorphic elements (Soft colors with soft shadows) */
 .shadow-neu-accent {
-  background: #00d4ff;
-  box-shadow: 4px 4px 8px #00a4c5, -4px -4px 8px #33e0ff;
+  background: #334155;
+  box-shadow: 4px 4px 8px #1e293b, -4px -4px 8px #475569;
 }
 
 .shadow-neu-primary {
-  background: #7b6cff;
-  box-shadow: 4px 4px 8px #5f52cc, -4px -4px 8px #9786ff;
+  background: #0f172a;
+  box-shadow: 4px 4px 8px #020617, -4px -4px 8px #1e293b;
 }
 
 .shadow-neu-white {
@@ -93,5 +93,5 @@
 
 .neu-input:focus {
   outline: none;
-  box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff, 0 0 0 2px #00d4ff/30;
+  box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff, 0 0 0 2px rgba(15, 23, 42, 0.15);
 }

@@ -160,7 +160,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:text-[#7b6cff] hover:shadow-neu-inset transition-all focus:outline-none"
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:shadow-neu-inset transition-all focus:outline-none"
               aria-label="Tutup"
             >
               <X className="w-5 h-5" />
@@ -170,7 +170,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
               // Form Content
               <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
                 <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#7b6cff] uppercase tracking-wider mb-1.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>KOMUNITAS PREMIUM INSAIGHT</span>
                   </div>
@@ -231,13 +231,13 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                       <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
                         <span>Kode Promo / Referral *</span>
                         {initialPromoCode && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[9px] font-extrabold border border-emerald-500/20 uppercase tracking-wider">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-300 text-slate-700 text-[9px] font-extrabold border border-slate-400/20 uppercase tracking-wider">
                             <Lock className="w-2.5 h-2.5" />
                             <span>Referral Terkunci</span>
                           </span>
                         )}
                       </label>
-                      {!initialPromoCode && <span className="text-[10px] text-[#7b6cff] font-bold">Wajib diisi</span>}
+                      {!initialPromoCode && <span className="text-[10px] text-slate-600 font-bold">Wajib diisi</span>}
                     </div>
                     <div className="relative">
                       <input
@@ -250,12 +250,12 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                         placeholder="Contoh: KENDARI50"
                         className={`w-full shadow-neu-inset-sm rounded-xl pl-4 pr-10 py-2.5 text-sm uppercase focus:outline-none focus:shadow-neu-inset transition-all border-0 tracking-wider font-extrabold ${
                           initialPromoCode
-                            ? "bg-emerald-500/5 text-emerald-600 cursor-not-allowed select-none border border-emerald-500/20"
-                            : "bg-[#e2e8f0] text-[#7b6cff]"
+                            ? "bg-slate-300/40 text-slate-700 cursor-not-allowed select-none border border-slate-400/20"
+                            : "bg-[#e2e8f0] text-slate-800"
                         }`}
                       />
                       {initialPromoCode && (
-                        <div className="absolute right-3 top-3 text-emerald-500">
+                        <div className="absolute right-3 top-3 text-slate-700">
                           <Check className="w-4 h-4 font-bold" />
                         </div>
                       )}
@@ -271,9 +271,9 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                           href="https://wa.me/6282371068831?text=Halo%20Admin%20insAIght%20Kendari,%20saya%20belum%20memiliki%20kode%20promo%20/%20referral.%20Boleh%20saya%20minta%20kode%20promonya?"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#7b6cff] hover:text-[#5e4ecc] font-extrabold flex items-center gap-1 transition-all"
+                          className="text-slate-700 hover:text-slate-900 font-extrabold flex items-center gap-1 transition-all"
                         >
-                          <Phone className="w-2.5 h-2.5 fill-[#7b6cff]" />
+                          <Phone className="w-2.5 h-2.5 fill-slate-800" />
                           Belum punya kode? Minta via WhatsApp
                         </a>
                       )}
@@ -284,7 +284,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-sm shadow-neu-primary hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 rounded-xl bg-slate-900 text-white font-extrabold text-sm shadow-neu-primary hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2"
                   >
                     <span>Ajukan Pendaftaran</span>
                     <Send className="w-4 h-4" />
@@ -294,14 +294,14 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
             ) : (
               // Success / Redirect Content
               <div className="p-6 sm:p-8 space-y-6 text-center">
-                <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 shadow-sm">
+                <div className="mx-auto w-16 h-16 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center mb-2 shadow-sm">
                   <Check className="w-8 h-8" />
                 </div>
 
                 <div>
                   <h3 className="text-2xl font-bold text-slate-800 tracking-tight">Pendaftaran Diajukan!</h3>
                   <p className="text-sm text-slate-600 mt-2">
-                    Terima kasih, <span className="font-bold text-[#7b6cff]">{formData.username}</span>. Data Anda telah disiapkan.
+                    Terima kasih, <span className="font-bold text-slate-800">{formData.username}</span>. Data Anda telah disiapkan.
                   </p>
                   <p className="text-xs text-slate-600 mt-3.5 leading-relaxed bg-[#e2e8f0] shadow-neu-inset rounded-xl p-3 max-w-sm mx-auto text-left font-mono">
                     <strong>Nama Akun (Username):</strong> {formData.username}<br />
@@ -318,7 +318,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                     href={getWaLink()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-sm shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2"
                   >
                     <Phone className="w-4 h-4 fill-white" />
                     <span>Kirim ke WhatsApp</span>
@@ -327,7 +327,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
 
                   <button
                     onClick={handleReset}
-                    className="text-xs text-[#7b6cff] hover:underline font-bold block mx-auto pt-2"
+                    className="text-xs text-slate-600 hover:underline font-bold block mx-auto pt-2"
                   >
                     Daftar dengan nama lain
                   </button>

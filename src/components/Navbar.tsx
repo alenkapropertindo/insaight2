@@ -29,12 +29,12 @@ export default function Navbar({
           <div className="flex items-center gap-2.5">
             <button 
               onClick={onHomeClick}
-              className="p-2.5 rounded-xl bg-[#e2e8f0] shadow-neu-flat-sm text-[#7b6cff] flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+              className="p-2.5 rounded-xl bg-[#e2e8f0] shadow-neu-flat-sm text-slate-800 flex items-center justify-center transition-all hover:scale-105 active:scale-95"
             >
               <Cpu className="w-5 h-5 animate-pulse" />
             </button>
             <button onClick={onHomeClick} className="text-xl font-extrabold tracking-tight text-slate-800 select-none text-left">
-              insAIght<span className="text-[#00d4ff]">_Kendari</span>
+              insAIght<span className="text-slate-500">_Kendari</span>
             </button>
           </div>
 
@@ -45,7 +45,7 @@ export default function Navbar({
                 onClick={onHomeClick} 
                 className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-neu-flat-sm hover:shadow-neu-inset-sm"
               >
-                <Home className="w-3.5 h-3.5 text-[#7b6cff]" />
+                <Home className="w-3.5 h-3.5 text-slate-800" />
                 <span>Beranda Utama</span>
               </button>
             ) : (
@@ -70,11 +70,11 @@ export default function Navbar({
               onClick={onMemberClick}
               className={`text-xs font-bold transition-all px-3.5 py-2.5 rounded-xl flex items-center gap-1.5 ${
                 isAnyPortalActive
-                  ? "shadow-neu-inset-sm text-[#00d4ff] bg-[#e2e8f0]"
+                  ? "shadow-neu-inset-sm text-slate-800 bg-[#e2e8f0]"
                   : "shadow-neu-flat-sm text-slate-600 hover:text-slate-900 hover:shadow-neu-inset-sm bg-[#e2e8f0]"
               }`}
             >
-              <User className="w-3.5 h-3.5 text-[#00d4ff]" />
+              <User className="w-3.5 h-3.5 text-slate-600" />
               <span>{isAnyPortalActive ? "Portal Member" : "Area Member"}</span>
             </button>
           </div>
@@ -82,7 +82,7 @@ export default function Navbar({
           <div className="hidden md:block">
             <button
               onClick={isAnyPortalActive ? onHomeClick : onJoinClick}
-              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white text-xs font-bold tracking-wide transition-all shadow-neu-primary hover:opacity-95 active:scale-95"
+              className="px-5 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold tracking-wide transition-all shadow-neu-primary hover:bg-slate-800 active:scale-95"
             >
               {isAnyPortalActive ? "Kembali ke Beranda" : "Gabung Sekarang"}
             </button>
@@ -112,7 +112,7 @@ export default function Navbar({
             className="md:hidden bg-[#e2e8f0] border-b border-[#ffffff]/50 shadow-neu-flat"
           >
             <div className="px-4 pt-2 pb-6 space-y-3">
-              {isAnyPortalActive ? (
+               {isAnyPortalActive ? (
                 <button
                   onClick={() => {
                     setIsOpen(false);
@@ -120,7 +120,7 @@ export default function Navbar({
                   }}
                   className="w-full text-left block px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-[#e2e8f0] shadow-neu-flat-sm hover:shadow-neu-inset-sm transition-all flex items-center gap-2"
                 >
-                  <Home className="w-4 h-4 text-[#7b6cff]" />
+                  <Home className="w-4 h-4 text-slate-800" />
                   <span>Beranda Utama</span>
                 </button>
               ) : (
@@ -161,9 +161,9 @@ export default function Navbar({
                   setIsOpen(false);
                   onMemberClick();
                 }}
-                className="w-full text-left block px-3 py-2.5 rounded-xl text-sm font-bold text-[#00d4ff] bg-[#e2e8f0] shadow-neu-flat-sm hover:shadow-neu-inset-sm transition-all flex items-center gap-2"
+                className="w-full text-left block px-3 py-2.5 rounded-xl text-sm font-bold text-slate-800 bg-[#e2e8f0] shadow-neu-flat-sm hover:shadow-neu-inset-sm transition-all flex items-center gap-2"
               >
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 text-slate-600" />
                 <span>{isAnyPortalActive ? "Portal Member" : "Area Member"}</span>
               </button>
 
@@ -177,7 +177,7 @@ export default function Navbar({
                       onJoinClick();
                     }
                   }}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white text-center font-bold shadow-neu-primary hover:opacity-95"
+                  className="w-full py-3 px-4 rounded-xl bg-slate-900 text-white text-center font-bold shadow-neu-primary hover:bg-slate-800"
                 >
                   {isAnyPortalActive ? "Kembali ke Beranda" : "Gabung Sekarang"}
                 </button>

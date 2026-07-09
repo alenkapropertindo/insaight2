@@ -121,11 +121,11 @@ export default function App() {
   };
 
   return (
-    <div className="bg-neumorph text-slate-800 min-h-screen font-sans overflow-x-hidden relative selection:bg-[#00d4ff]/20 selection:text-slate-800">
+    <div className="bg-neumorph text-slate-800 min-h-screen font-sans overflow-x-hidden relative selection:bg-slate-900/10 selection:text-slate-800">
       
       {/* Subtle Soft Neumorphic Glow Highlights */}
-      <div className="fixed top-[-5%] left-[-5%] w-[400px] h-[400px] rounded-full bg-[#7b6cff]/5 filter blur-[100px] pointer-events-none z-0" />
-      <div className="fixed bottom-[-5%] right-[-5%] w-[350px] h-[350px] rounded-full bg-[#00d4ff]/5 filter blur-[100px] pointer-events-none z-0" />
+      <div className="fixed top-[-5%] left-[-5%] w-[400px] h-[400px] rounded-full bg-slate-900/5 filter blur-[100px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-5%] right-[-5%] w-[350px] h-[350px] rounded-full bg-slate-500/5 filter blur-[100px] pointer-events-none z-0" />
 
       {/* Main navigation */}
       <Navbar 
@@ -204,19 +204,19 @@ export default function App() {
               className="lg:col-span-7 text-left space-y-6"
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-neu-inset-sm text-xs sm:text-xs font-semibold tracking-wide text-slate-600 bg-[#e2e8f0]">
-                <Sparkles className="w-4 h-4 text-[#7b6cff] animate-spin" />
+                <Sparkles className="w-4 h-4 text-slate-800 animate-spin" />
                 <span>🚀 insAIght Kendari Membership</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-slate-800">
                 Komunitas AI, Skill & <br />
-                <span className="bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-black to-slate-600 bg-clip-text text-transparent">
                   Peluang Bertumbuh
                 </span>
               </h1>
 
               <div className="space-y-4">
-                <h3 className="text-xl sm:text-2xl font-bold text-[#7b6cff] tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-800 tracking-tight">
                   Jangan Belajar AI Sendirian.
                 </h3>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
@@ -230,7 +230,7 @@ export default function App() {
               <div className="flex flex-wrap gap-4 pt-3">
                 <button
                   onClick={scrollToJoin}
-                  className="px-8 py-4 rounded-full bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-bold tracking-wide transition-all shadow-neu-primary hover:opacity-95 active:scale-95"
+                  className="px-8 py-4 rounded-full bg-slate-900 text-white font-bold tracking-wide transition-all shadow-neu-primary hover:bg-slate-800 active:scale-95"
                 >
                   Gabung Sekarang
                 </button>
@@ -253,7 +253,7 @@ export default function App() {
               <div className="shadow-neu-flat rounded-3xl p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
-                    <span className="text-[#7b6cff]">🔥</span> Apa yang Didapat?
+                    <span className="text-slate-800">🔥</span> Apa yang Didapat?
                   </h3>
                   <span className="text-xs px-2.5 py-1 shadow-neu-inset-sm text-slate-600 font-semibold rounded-md bg-[#e2e8f0]">
                     Premium VIP
@@ -265,11 +265,11 @@ export default function App() {
                     const IconComponent = iconMap[item.icon] || GraduationCap;
                     return (
                       <div key={item.id} className="flex gap-3 items-start group">
-                        <div className="w-9 h-9 rounded-xl bg-[#e2e8f0] shadow-neu-flat-sm text-[#7b6cff] flex items-center justify-center font-bold font-mono text-sm shrink-0 group-hover:shadow-neu-inset-sm transition-all duration-300">
+                        <div className="w-9 h-9 rounded-xl bg-[#e2e8f0] shadow-neu-flat-sm text-slate-800 flex items-center justify-center font-bold font-mono text-sm shrink-0 group-hover:shadow-neu-inset-sm transition-all duration-300">
                           <IconComponent className="w-4 h-4" />
                         </div>
                         <div className="space-y-0.5">
-                          <h4 className="text-xs sm:text-sm font-semibold text-slate-800 tracking-tight group-hover:text-[#7b6cff] transition-colors">
+                          <h4 className="text-xs sm:text-sm font-semibold text-slate-800 tracking-tight group-hover:text-slate-900 transition-colors">
                             {item.title}
                           </h4>
                           <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
@@ -291,19 +291,19 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="space-y-1">
-              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">300+</span>
+              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-black to-slate-600 bg-clip-text text-transparent">300+</span>
               <span className="text-xs text-slate-500 tracking-wider font-semibold uppercase">Premium Members</span>
             </div>
             <div className="space-y-1">
-              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">15+</span>
+              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-black to-slate-600 bg-clip-text text-transparent">15+</span>
               <span className="text-xs text-slate-500 tracking-wider font-semibold uppercase">Live Classes</span>
             </div>
             <div className="space-y-1">
-              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">120+</span>
+              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-black to-slate-600 bg-clip-text text-transparent">120+</span>
               <span className="text-xs text-slate-500 tracking-wider font-semibold uppercase">Premium Prompts</span>
             </div>
             <div className="space-y-1">
-              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">24/7</span>
+              <span className="block text-3xl sm:text-4xl font-extrabold text-slate-800 bg-gradient-to-r from-black to-slate-600 bg-clip-text text-transparent">24/7</span>
               <span className="text-xs text-slate-500 tracking-wider font-semibold uppercase">Discord & WA Grup Support</span>
             </div>
           </div>
@@ -339,7 +339,7 @@ export default function App() {
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-300">
-                <span className="text-[11px] font-bold text-[#7b6cff] uppercase tracking-wider">Aplikatif & Praktis</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Aplikatif & Praktis</span>
               </div>
             </motion.div>
 
@@ -366,14 +366,14 @@ export default function App() {
                     "Launching"
                   ].map((bullet, i) => (
                     <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
-                      <span className="text-[#00d4ff]">⚡</span>
+                      <span className="text-slate-600">⚡</span>
                       <span>{bullet}</span>
                     </div>
                   ))}
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-300">
-                <span className="text-[11px] font-bold text-[#7b6cff] uppercase tracking-wider">Langkah Eksekusi Nyata</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Langkah Eksekusi Nyata</span>
               </div>
             </motion.div>
 
@@ -392,16 +392,16 @@ export default function App() {
                   Belajar akan jauh lebih cepat ketika dilakukan bersama. Di komunitas kamu bisa:
                 </p>
                 <div className="grid grid-cols-2 gap-1.5 text-xs text-slate-700">
-                  <div className="flex items-center gap-1"><span className="text-emerald-500 font-bold">✔</span> Bertanya kapan saja</div>
-                  <div className="flex items-center gap-1"><span className="text-emerald-500 font-bold">✔</span> Diskusi bersama</div>
-                  <div className="flex items-center gap-1"><span className="text-emerald-500 font-bold">✔</span> Sharing pengalaman</div>
-                  <div className="flex items-center gap-1"><span className="text-emerald-500 font-bold">✔</span> Minta feedback</div>
-                  <div className="flex items-center gap-1"><span className="text-emerald-500 font-bold">✔</span> Kolaborasi proyek</div>
-                  <div className="flex items-center gap-1"><span className="text-emerald-500 font-bold">✔</span> Networking</div>
+                  <div className="flex items-center gap-1"><span className="text-slate-800 font-bold">✔</span> Bertanya kapan saja</div>
+                  <div className="flex items-center gap-1"><span className="text-slate-800 font-bold">✔</span> Diskusi bersama</div>
+                  <div className="flex items-center gap-1"><span className="text-slate-800 font-bold">✔</span> Sharing pengalaman</div>
+                  <div className="flex items-center gap-1"><span className="text-slate-800 font-bold">✔</span> Minta feedback</div>
+                  <div className="flex items-center gap-1"><span className="text-slate-800 font-bold">✔</span> Kolaborasi proyek</div>
+                  <div className="flex items-center gap-1"><span className="text-slate-800 font-bold">✔</span> Networking</div>
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-300">
-                <span className="text-[11px] font-bold text-[#7b6cff] uppercase tracking-wider">Suportif 24/7</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Suportif 24/7</span>
               </div>
             </motion.div>
 
@@ -422,14 +422,14 @@ export default function App() {
                 <div className="space-y-1.5 bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl p-3.5">
                   {["Portofolio", "Skill", "Pengalaman", "Relasi"].map((bullet, i) => (
                     <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
-                      <span className="text-[#00d4ff] font-bold">✔</span>
+                      <span className="text-slate-600 font-bold">✔</span>
                       <span>{bullet}</span>
                     </div>
                   ))}
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-300">
-                <span className="text-[11px] font-bold text-[#7b6cff] uppercase tracking-wider">Learning by Doing</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Learning by Doing</span>
               </div>
             </motion.div>
 
@@ -456,7 +456,7 @@ export default function App() {
                 </div>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-300">
-                <span className="text-[11px] font-bold text-[#7b6cff] uppercase tracking-wider">Tetap Relevan</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tetap Relevan</span>
               </div>
             </motion.div>
           </div>
@@ -488,14 +488,14 @@ export default function App() {
                   className="shadow-neu-flat rounded-3xl p-6 transition-all group hover:shadow-neu-flat-lg hover:scale-[1.01] flex flex-col bg-[#e2e8f0]"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#e2e8f0] shadow-neu-inset-sm text-[#7b6cff] flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-[#e2e8f0] shadow-neu-inset-sm text-slate-800 flex items-center justify-center">
                       <IconComponent className="w-5 h-5" />
                     </div>
-                    <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 shadow-neu-inset-sm px-2.5 py-1 rounded-full bg-[#e2e8f0]">
+                    <span className="text-xs font-bold text-slate-700 flex items-center gap-1 shadow-neu-inset-sm px-2.5 py-1 rounded-full bg-[#e2e8f0]">
                       <span>✓</span> Aktif
                     </span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-800 mb-2 group-hover:text-[#7b6cff] transition-colors">
+                  <h3 className="text-base font-bold text-slate-800 mb-2 group-hover:text-slate-900 transition-colors">
                     {usecase.title}
                   </h3>
                   <p className="text-slate-500 text-xs leading-relaxed">
@@ -593,7 +593,7 @@ export default function App() {
               className="max-w-md w-full rounded-3xl shadow-neu-flat p-8 sm:p-10 text-center relative bg-[#e2e8f0]"
             >
               {/* Recommended badge */}
-              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white text-[11px] font-extrabold uppercase px-4 py-1.5 rounded-full select-none tracking-widest shadow-neu-primary">
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[11px] font-extrabold uppercase px-4 py-1.5 rounded-full select-none tracking-widest shadow-neu-primary">
                 ★ Best Offer ★
               </span>
 
@@ -602,9 +602,9 @@ export default function App() {
               <div className="flex flex-col items-center justify-center gap-2 my-6 text-slate-800 bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-4">
                 <div className="flex items-center gap-3">
                   <span className="text-base sm:text-lg font-bold text-slate-400 line-through">Rp499K</span>
-                  <span className="text-4xl sm:text-5xl font-black leading-none tracking-tight bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">Rp149K</span>
+                  <span className="text-4xl sm:text-5xl font-black leading-none tracking-tight bg-gradient-to-r from-black to-slate-700 bg-clip-text text-transparent">Rp149K</span>
                 </div>
-                <span className="text-xs font-bold text-emerald-600 shadow-neu-inset-sm px-3 py-1 rounded-full bg-[#e2e8f0]">
+                <span className="text-xs font-bold text-slate-700 shadow-neu-inset-sm px-3 py-1 rounded-full bg-[#e2e8f0]">
                   Daftar Sekali Berlaku Selamanya
                 </span>
               </div>
@@ -620,7 +620,7 @@ export default function App() {
                   "Challenge & kompetisi kreatif berhadiah",
                 ].map((feature, i) => (
                   <li key={i} className="flex gap-3 items-start text-slate-700 text-xs sm:text-sm">
-                    <Check className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                    <Check className="w-5 h-5 text-slate-800 shrink-0 mt-0.5" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -628,7 +628,7 @@ export default function App() {
 
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold tracking-wide transition-all shadow-neu-primary hover:opacity-95 active:scale-95"
+                className="w-full py-4 rounded-xl bg-slate-900 text-white font-extrabold tracking-wide transition-all shadow-neu-primary hover:bg-slate-800 active:scale-95"
               >
                 Daftar Sekarang
               </button>
@@ -658,7 +658,7 @@ export default function App() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-800 tracking-tight leading-tight">
             AI Bukan Lagi Masa Depan.<br />
-            <span className="bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] bg-clip-text text-transparent">AI Adalah Kebutuhan.</span>
+            <span className="bg-gradient-to-r from-black to-slate-700 bg-clip-text text-transparent">AI Adalah Kebutuhan.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             Jangan biarkan diri Anda tertinggal di era revolusi digital ini. Bergabung sekarang juga bersama insAIght Kendari untuk membekali masa depan karir dan bisnis Anda secara cerdas.
@@ -666,7 +666,7 @@ export default function App() {
           <div className="pt-4">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center gap-2.5 px-8 py-4.5 rounded-full bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold shadow-neu-primary hover:opacity-95 active:scale-95 transition-all"
+              className="inline-flex items-center gap-2.5 px-8 py-4.5 rounded-full bg-slate-900 text-white font-extrabold shadow-neu-primary hover:bg-slate-800 active:scale-95 transition-all"
             >
               <span>Bergabung via WhatsApp</span>
               <ArrowRight className="w-5 h-5" />
@@ -681,7 +681,7 @@ export default function App() {
       <footer className="relative py-12 border-t border-slate-300 z-10 bg-neumorph text-center text-xs sm:text-sm text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
           <div className="flex justify-center items-center gap-1.5 font-bold text-slate-800 mb-2 selection:bg-transparent">
-            <Cpu className="w-5 h-5 text-[#7b6cff] animate-pulse" />
+            <Cpu className="w-5 h-5 text-slate-800 animate-pulse" />
             <span>insAIght Kendari</span>
           </div>
           <p>© 2026 insAIght Kendari — Komunitas AI Kreatif Indonesia. All Rights Reserved.</p>
