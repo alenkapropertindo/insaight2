@@ -102,7 +102,13 @@ export default function App() {
 
     if (promoCodeToUse) {
       setInitialPromoCode(promoCodeToUse);
-      setIsModalOpen(true);
+      // Smoothly scroll to the #join membership plan section with a minor delay so the page is fully loaded
+      setTimeout(() => {
+        const element = document.getElementById("join");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 600);
       window.history.replaceState({}, document.title, window.location.origin);
     }
   }, []);

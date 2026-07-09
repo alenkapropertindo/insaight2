@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { X, Check, ArrowRight, Sparkles, Send, Phone } from "lucide-react";
+import { X, Check, ArrowRight, Sparkles, Send, Phone, Eye, EyeOff, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabase";
+import { hashPassword } from "../lib/hash";
 
 interface RegistrationModalProps {
   isOpen: boolean;
@@ -13,7 +14,9 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    promoCode: ""
+    promoCode: "",
+    username: "",
+    password: ""
   });
 
   useEffect(() => {
@@ -27,6 +30,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -41,7 +45,7 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
     const promoPart = formData.promoCode.trim() 
       ? ` menggunakan Kode Promo/Referral: ${formData.promoCode.trim().toUpperCase()}` 
       : "";
-    const textMessage = `Halo Admin insAIght Kendari, saya ${formData.name.trim()} ingin gabung komunitas${promoPart}.`;
+    const textMessage = `Halo Admin insAIght Kendari, saya dengan nama akun ${formData.username.trim()} ingin gabung komunitas${promoPart}.`;
     return `https://wa.me/${adminPhone}?text=${encodeURIComponent(textMessage)}`;
   };
 
@@ -49,24 +53,35 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
     e.preventDefault();
 
     // Small client-side validation
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.promoCode.trim()) {
-      setErrorMsg("Mohon isi semua bidang yang diperlukan (Nama, WhatsApp, Kode Promo)!");
-      return;
-    }
-
-    if (!/^\d+$/.test(formData.phone.trim().replace(/[+-]/g, ""))) {
-      setErrorMsg("Format nomor WhatsApp tidak valid. Gunakan angka saja!");
+    if (!formData.username.trim() || !formData.password.trim() || !formData.promoCode.trim()) {
+      setErrorMsg("Mohon isi semua bidang yang diperlukan (Username, Password, Kode Promo)!");
       return;
     }
 
     try {
       setErrorMsg("");
       const promoInput = formData.promoCode.trim().toUpperCase();
+      const cleanUsername = formData.username.trim().toLowerCase();
+
+      // Check if the username is already registered (unique username validation)
+      const { data: existingUser, error: usernameCheckError } = await supabase
+        .from("members")
+        .select("id")
+        .eq("username", cleanUsername);
+
+      if (usernameCheckError) {
+        throw usernameCheckError;
+      }
+
+      if (existingUser && existingUser.length > 0) {
+        setErrorMsg("Nama Akun (Username) sudah digunakan! Silakan pilih username yang lain.");
+        return;
+      }
 
       // Check if the promo code exists in the database
       const { data: promoOwnerData, error: promoError } = await supabase
         .from("members")
-        .select("name")
+        .select("username")
         .eq("promoCode", promoInput);
 
       if (promoError) {
@@ -78,18 +93,23 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
         return;
       }
 
-      const referrerName = promoOwnerData[0].name;
+      const referrerName = promoOwnerData[0].username || "Admin";
 
-      const nameFirstWord = formData.name.toUpperCase().trim().split(" ")[0].replace(/[^A-Z0-9]/g, "");
-      const generatedPromo = `${nameFirstWord || "MEMBER"}_${Math.floor(100 + Math.random() * 900)}`;
+      const usernameFirstWord = formData.username.toUpperCase().trim().split(" ")[0].replace(/[^A-Z0-9]/g, "");
+      const generatedPromo = `${usernameFirstWord || "MEMBER"}_${Math.floor(100 + Math.random() * 900)}`;
+      
+      const hashedPassword = await hashPassword(formData.password.trim());
+      
       const newMember = {
         id: `m-${Date.now()}`,
-        name: formData.name.trim(),
-        phone: formData.phone.trim(),
+        phone: "-",
         promoCode: generatedPromo,
         joinedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
         status: "Pending", // Status is Pending until verified manually by admin
-        referredBy: referrerName
+        referredBy: referrerName,
+        role: "member",
+        username: cleanUsername,
+        password: hashedPassword
       };
 
       const { error } = await supabase.from("members").insert([newMember]);
@@ -108,7 +128,9 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
     setFormData({
       name: "",
       phone: "",
-      promoCode: initialPromoCode || ""
+      promoCode: initialPromoCode || "",
+      username: "",
+      password: ""
     });
     setIsSubmitted(false);
     setErrorMsg("");
@@ -165,60 +187,96 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                 )}
 
                 <div className="space-y-4">
-                  {/* Name field */}
+                  {/* Username field */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-600">Nama Lengkap *</label>
+                    <label className="text-xs font-bold text-slate-600">Nama Akun (Username) Baru *</label>
                     <input
                       required
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="username"
+                      value={formData.username}
                       onChange={handleChange}
-                      placeholder="Contoh: Muhammad Akhyar"
+                      placeholder="Contoh: akhyar99 (untuk login)"
                       className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
                     />
                   </div>
 
-                  {/* Phone field */}
+                  {/* Password field */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-600">Nomor WhatsApp *</label>
-                    <input
-                      required
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Contoh: 0823xxxxxxxx"
-                      className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
-                    />
+                    <label className="text-xs font-bold text-slate-600">Password Baru *</label>
+                    <div className="relative">
+                      <input
+                        required
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Masukkan password untuk login"
+                        className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl pl-4 pr-10 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none bg-transparent border-0 cursor-pointer"
+                        id="toggle-register-password"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
 
                   {/* Promo Code / Referral Code field */}
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center">
-                      <label className="text-xs font-bold text-slate-600">Kode Promo / Referral *</label>
-                      <span className="text-[10px] text-[#7b6cff] font-bold">Wajib diisi</span>
+                      <label className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                        <span>Kode Promo / Referral *</span>
+                        {initialPromoCode && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[9px] font-extrabold border border-emerald-500/20 uppercase tracking-wider">
+                            <Lock className="w-2.5 h-2.5" />
+                            <span>Referral Terkunci</span>
+                          </span>
+                        )}
+                      </label>
+                      {!initialPromoCode && <span className="text-[10px] text-[#7b6cff] font-bold">Wajib diisi</span>}
                     </div>
-                    <input
-                      required
-                      type="text"
-                      name="promoCode"
-                      value={formData.promoCode}
-                      onChange={handleChange}
-                      placeholder="Contoh: KENDARI50"
-                      className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-[#7b6cff] placeholder-slate-400 uppercase focus:outline-none focus:shadow-neu-inset transition-all border-0 tracking-wider font-extrabold"
-                    />
+                    <div className="relative">
+                      <input
+                        required
+                        type="text"
+                        name="promoCode"
+                        value={formData.promoCode}
+                        onChange={handleChange}
+                        readOnly={!!initialPromoCode}
+                        placeholder="Contoh: KENDARI50"
+                        className={`w-full shadow-neu-inset-sm rounded-xl pl-4 pr-10 py-2.5 text-sm uppercase focus:outline-none focus:shadow-neu-inset transition-all border-0 tracking-wider font-extrabold ${
+                          initialPromoCode
+                            ? "bg-emerald-500/5 text-emerald-600 cursor-not-allowed select-none border border-emerald-500/20"
+                            : "bg-[#e2e8f0] text-[#7b6cff]"
+                        }`}
+                      />
+                      {initialPromoCode && (
+                        <div className="absolute right-3 top-3 text-emerald-500">
+                          <Check className="w-4 h-4 font-bold" />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 text-[10px] pt-1">
-                      <span className="text-slate-400 font-bold">Gunakan kode sponsor Anda untuk pendaftaran</span>
-                      <a
-                        href="https://wa.me/6282371068831?text=Halo%20Admin%20insAIght%20Kendari,%20saya%20belum%20memiliki%20kode%20promo%20/%20referral.%20Boleh%20saya%20minta%20kode%20promonya?"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#7b6cff] hover:text-[#5e4ecc] font-extrabold flex items-center gap-1 transition-all"
-                      >
-                        <Phone className="w-2.5 h-2.5 fill-[#7b6cff]" />
-                        Belum punya kode? Minta via WhatsApp
-                      </a>
+                      <span className="text-slate-400 font-bold">
+                        {initialPromoCode 
+                          ? "Kode rujukan terisi otomatis dari link referral Anda." 
+                          : "Gunakan kode sponsor Anda untuk pendaftaran"}
+                      </span>
+                      {!initialPromoCode && (
+                        <a
+                          href="https://wa.me/6282371068831?text=Halo%20Admin%20insAIght%20Kendari,%20saya%20belum%20memiliki%20kode%20promo%20/%20referral.%20Boleh%20saya%20minta%20kode%20promonya?"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#7b6cff] hover:text-[#5e4ecc] font-extrabold flex items-center gap-1 transition-all"
+                        >
+                          <Phone className="w-2.5 h-2.5 fill-[#7b6cff]" />
+                          Belum punya kode? Minta via WhatsApp
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -243,11 +301,10 @@ export default function RegistrationModal({ isOpen, onClose, initialPromoCode = 
                 <div>
                   <h3 className="text-2xl font-bold text-slate-800 tracking-tight">Pendaftaran Diajukan!</h3>
                   <p className="text-sm text-slate-600 mt-2">
-                    Terima kasih, <span className="font-bold text-[#7b6cff]">{formData.name}</span>. Data Anda telah disiapkan.
+                    Terima kasih, <span className="font-bold text-[#7b6cff]">{formData.username}</span>. Data Anda telah disiapkan.
                   </p>
                   <p className="text-xs text-slate-600 mt-3.5 leading-relaxed bg-[#e2e8f0] shadow-neu-inset rounded-xl p-3 max-w-sm mx-auto text-left font-mono">
-                    <strong>Nama Lengkap:</strong> {formData.name}<br />
-                    <strong>WhatsApp:</strong> {formData.phone}<br />
+                    <strong>Nama Akun (Username):</strong> {formData.username}<br />
                     <strong>Kode Promo/Referral:</strong> {formData.promoCode.trim() ? formData.promoCode.trim().toUpperCase() : "-"}
                   </p>
                 </div>

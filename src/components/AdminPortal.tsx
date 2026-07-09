@@ -5,15 +5,15 @@ import {
   Clock, 
   CheckCircle, 
   Search, 
-  Plus, 
   Trash2, 
   ArrowLeft, 
   Check, 
   X,
   Shield,
   TrendingUp,
-  UserCheck
+  AlertCircle
 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../lib/supabase";
 
 interface AdminPortalProps {
@@ -23,13 +23,15 @@ interface AdminPortalProps {
 
 interface MemberRecord {
   id: string;
-  name: string;
+  name?: string;
   phone: string;
   promoCode: string;
   joinedAt: string;
   status: "Aktif" | "Pending";
   referredBy: string;
   role?: "member" | "admin";
+  username: string;
+  password?: string;
 }
 
 interface PayoutRecord {
@@ -53,16 +55,25 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
   const [payoutFilter, setPayoutFilter] = useState<"Semua" | "Diajukan" | "Cair" | "Ditolak">("Semua");
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Form for manual member addition
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newMember, setNewMember] = useState({
-    name: "",
-    phone: "",
-    promoCode: "",
-    referredBy: "",
-    status: "Aktif" as "Aktif" | "Pending",
-    role: "member" as "member" | "admin"
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: "success" | "warning" | "danger" | "info";
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+    confirmText: "Ya, Yakin",
+    cancelText: "Batal",
+    variant: "info",
   });
+
+
 
   const fetchData = async () => {
     try {
@@ -102,39 +113,9 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleAddMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMember.name.trim() || !newMember.phone.trim()) {
-      showToast("Nama dan WhatsApp wajib diisi!");
-      return;
-    }
 
-    const newRec: MemberRecord = {
-      id: `m-${Date.now()}`,
-      name: newMember.name,
-      phone: newMember.phone,
-      promoCode: newMember.promoCode.trim().toUpperCase() || `MEM-${Math.floor(100 + Math.random() * 900)}`,
-      joinedAt: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
-      status: newMember.status,
-      referredBy: newMember.referredBy.trim().toUpperCase() || "-",
-      role: newMember.role
-    };
 
-    try {
-      const { error } = await supabase.from("members").insert([newRec]);
-      if (error) throw error;
-
-      setNewMember({ name: "", phone: "", promoCode: "", referredBy: "", status: "Aktif", role: "member" });
-      setShowAddForm(false);
-      showToast("Anggota Baru berhasil ditambahkan ke sistem!");
-      fetchData();
-    } catch (err: any) {
-      console.error(err);
-      showToast(`Gagal menambahkan anggota: ${err.message || err}`);
-    }
-  };
-
-  const handleVerifyMember = async (id: string) => {
+  const executeVerifyMember = async (id: string) => {
     const targetMember = members.find(m => m.id === id);
     if (!targetMember) return;
 
@@ -142,7 +123,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
       const { error } = await supabase.from("members").update({ status: "Aktif" }).eq("id", id);
       if (error) throw error;
 
-      showToast(`Akun ${targetMember.name} berhasil diaktifkan!`);
+      showToast(`Akun ${targetMember.username || targetMember.name} berhasil diaktifkan!`);
       fetchData();
     } catch (err: any) {
       console.error(err);
@@ -150,22 +131,20 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
     }
   };
 
-  const handleDeleteMember = async (id: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus data anggota ini?")) {
-      try {
-        const { error } = await supabase.from("members").delete().eq("id", id);
-        if (error) throw error;
+  const executeDeleteMember = async (id: string) => {
+    try {
+      const { error } = await supabase.from("members").delete().eq("id", id);
+      if (error) throw error;
 
-        showToast("Anggota berhasil dihapus.");
-        fetchData();
-      } catch (err: any) {
-        console.error(err);
-        showToast(`Gagal menghapus: ${err.message || err}`);
-      }
+      showToast("Anggota berhasil dihapus.");
+      fetchData();
+    } catch (err: any) {
+      console.error(err);
+      showToast(`Gagal menghapus: ${err.message || err}`);
     }
   };
 
-  const handleApprovePayout = async (id: string) => {
+  const executeApprovePayout = async (id: string) => {
     try {
       const { error } = await supabase.from("payouts").update({ status: "Selesai" }).eq("id", id);
       if (error) throw error;
@@ -178,7 +157,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
     }
   };
 
-  const handleRejectPayout = async (id: string) => {
+  const executeRejectPayout = async (id: string) => {
     try {
       const { error } = await supabase.from("payouts").update({ status: "Ditolak" }).eq("id", id);
       if (error) throw error;
@@ -191,19 +170,93 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
     }
   };
 
-  const handleDeletePayout = async (id: string) => {
-    if (confirm("Hapus log payout ini?")) {
-      try {
-        const { error } = await supabase.from("payouts").delete().eq("id", id);
-        if (error) throw error;
+  const executeDeletePayout = async (id: string) => {
+    try {
+      const { error } = await supabase.from("payouts").delete().eq("id", id);
+      if (error) throw error;
 
-        showToast("Log payout dihapus.");
-        fetchData();
-      } catch (err: any) {
-        console.error(err);
-        showToast(`Gagal menghapus log payout: ${err.message || err}`);
-      }
+      showToast("Log payout dihapus.");
+      fetchData();
+    } catch (err: any) {
+      console.error(err);
+      showToast(`Gagal menghapus log payout: ${err.message || err}`);
     }
+  };
+
+  // Trigger modal handlers
+  const triggerVerifyMember = (id: string, username: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Verifikasi & Aktifkan Member",
+      message: `Apakah Anda yakin ingin menyetujui dan mengaktifkan member "${username}"? Status member akan diubah menjadi Aktif (Lunas).`,
+      onConfirm: () => {
+        executeVerifyMember(id);
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: "Ya, Aktifkan",
+      cancelText: "Batal",
+      variant: "success"
+    });
+  };
+
+  const triggerDeleteMember = (id: string, username: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Hapus Anggota",
+      message: `Apakah Anda yakin ingin menghapus data anggota "${username}"? Tindakan ini permanen dan tidak dapat dibatalkan.`,
+      onConfirm: () => {
+        executeDeleteMember(id);
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: "Ya, Hapus",
+      cancelText: "Batal",
+      variant: "danger"
+    });
+  };
+
+  const triggerApprovePayout = (id: string, memberName: string, amount: number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Setujui Pencairan Komisi",
+      message: `Apakah Anda yakin ingin menyetujui permintaan pencairan komisi untuk "${memberName}" sebesar Rp ${amount.toLocaleString("id-ID")}? Status pencairan akan diubah menjadi Selesai.`,
+      onConfirm: () => {
+        executeApprovePayout(id);
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: "Ya, Setujui & Cairkan",
+      cancelText: "Batal",
+      variant: "success"
+    });
+  };
+
+  const triggerRejectPayout = (id: string, memberName: string, amount: number) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Tolak Pencairan Komisi",
+      message: `Apakah Anda yakin ingin menolak permintaan pencairan komisi untuk "${memberName}" sebesar Rp ${amount.toLocaleString("id-ID")}? Status pencairan akan diubah menjadi Ditolak.`,
+      onConfirm: () => {
+        executeRejectPayout(id);
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: "Ya, Tolak",
+      cancelText: "Batal",
+      variant: "danger"
+    });
+  };
+
+  const triggerDeletePayout = (id: string, memberName: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Hapus Log Payout",
+      message: `Apakah Anda yakin ingin menghapus catatan log payout untuk "${memberName}"?`,
+      onConfirm: () => {
+        executeDeletePayout(id);
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      },
+      confirmText: "Ya, Hapus Log",
+      cancelText: "Batal",
+      variant: "danger"
+    });
   };
 
   // Calculations
@@ -223,9 +276,6 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
     if (member.status === "Pending") {
       return { text: "Belum Diajukan", color: "text-slate-500 bg-slate-200/50 border-slate-300" };
     }
-    if (member.id === "m-2" || member.id === "m-3" || member.id === "m-4") {
-      return { text: "Cair", color: "text-emerald-700 bg-emerald-100 border-emerald-200" };
-    }
     const matchingPayout = payouts.find(p => p.referredMemberId === member.id);
     if (matchingPayout) {
       if (matchingPayout.status === "Selesai") {
@@ -242,7 +292,8 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
   // Filters
   const filteredMembers = members.filter(m => {
     const matchesSearch = 
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (m.username || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+      (m.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
       m.phone.includes(searchQuery) || 
       m.promoCode.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -306,13 +357,6 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           </div>
 
           <div className="flex flex-wrap gap-3 self-start sm:self-auto">
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7b6cff] to-[#00d4ff] text-white font-extrabold text-xs shadow-neu-primary hover:opacity-95 transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Tambah Anggota Manual</span>
-            </button>
             {onLogout && (
               <button
                 onClick={onLogout}
@@ -369,103 +413,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
           </div>
         </div>
 
-        {/* Manual Member Form Dropdown */}
-        {showAddForm && (
-          <div className="bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 space-y-4 border-0">
-            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <UserCheck className="w-5 h-5 text-[#7b6cff]" />
-              <span>Input Data Anggota Baru Manual</span>
-            </h3>
-            
-            <form onSubmit={handleAddMember} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Nama Lengkap *</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="Contoh: Rian Saputra"
-                  value={newMember.name}
-                  onChange={e => setNewMember({ ...newMember, name: e.target.value })}
-                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
-                />
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Nomor WhatsApp *</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="Contoh: 08123456789"
-                  value={newMember.phone}
-                  onChange={e => setNewMember({ ...newMember, phone: e.target.value })}
-                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Kode Referral Mandiri (Jika Ada)</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: RIAN_CREATOR"
-                  value={newMember.promoCode}
-                  onChange={e => setNewMember({ ...newMember, promoCode: e.target.value })}
-                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-[#7b6cff] placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0 uppercase font-extrabold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Direferensikan Oleh (Kode Teman)</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: RIZQO_INS"
-                  value={newMember.referredBy}
-                  onChange={e => setNewMember({ ...newMember, referredBy: e.target.value })}
-                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0 uppercase font-extrabold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Status Keanggotaan</label>
-                <select
-                  value={newMember.status}
-                  onChange={e => setNewMember({ ...newMember, status: e.target.value as "Aktif" | "Pending" })}
-                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:shadow-neu-inset cursor-pointer transition-all border-0 font-bold"
-                >
-                  <option value="Aktif">Aktif (Lunas)</option>
-                  <option value="Pending">Pending (Menunggu Bayar)</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-600">Peran (Role) Member</label>
-                <select
-                  value={newMember.role}
-                  onChange={e => setNewMember({ ...newMember, role: e.target.value as "member" | "admin" })}
-                  className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:shadow-neu-inset cursor-pointer transition-all border-0 font-bold"
-                >
-                  <option value="member">Member</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <div className="flex items-end gap-2">
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition-all shadow-md"
-                >
-                  Simpan & Daftarkan
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAddForm(false)}
-                  className="px-4 py-2.5 rounded-xl bg-[#e2e8f0] shadow-neu-flat text-slate-600 hover:shadow-neu-inset text-xs transition-all"
-                >
-                  Batal
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
 
         {/* Search & Filter Bar */}
         <div className="bg-[#e2e8f0] shadow-neu-flat rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-0">
@@ -537,16 +485,17 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-[#e2e8f0]/40 border-b border-slate-300 text-xs text-slate-500 uppercase font-bold">
-                    <th className="p-3.5">Nama & Kontak</th>
+                    <th className="p-3.5">Username & Kontak</th>
                     <th className="p-3.5">Referred By</th>
                     <th className="p-3.5">Status Member</th>
                     <th className="p-3.5">Status Payout</th>
+                    <th className="p-3.5 text-center">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-300 text-xs text-slate-600">
                   {filteredMembers.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="p-8 text-center text-slate-400">
+                      <td colSpan={5} className="p-8 text-center text-slate-400">
                         Tidak ada anggota ditemukan.
                       </td>
                     </tr>
@@ -555,7 +504,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                       <tr key={member.id} className="hover:bg-[#e2e8f0]/60 transition-colors">
                         <td className="p-3.5">
                           <div className="font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
-                            <span>{member.name}</span>
+                            <span>{member.username || member.name}</span>
                             <span className="text-[9px] font-mono font-bold text-[#7b6cff] bg-[#7b6cff]/10 border border-[#7b6cff]/20 px-1 py-0.2 rounded">
                               {member.promoCode}
                             </span>
@@ -578,7 +527,7 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                         <td className="p-3.5">
                           {member.status === "Pending" ? (
                             <button
-                              onClick={() => handleVerifyMember(member.id)}
+                              onClick={() => triggerVerifyMember(member.id, member.username || member.name || "Member")}
                               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold text-[10px] border bg-amber-100 hover:bg-emerald-100 text-amber-700 hover:text-emerald-700 border-amber-200 hover:border-emerald-200 animate-pulse transition-all cursor-pointer shadow-sm hover:shadow"
                               title="Klik untuk Aktifkan & Verifikasi Member"
                             >
@@ -592,13 +541,22 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                         </td>
                         <td className="p-3.5">
                           {(() => {
-                            const pStatus = getPayoutStatus(member);
-                            return (
-                              <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${pStatus.color}`}>
-                                <span>●</span> {pStatus.text}
-                              </span>
-                            );
+                              const pStatus = getPayoutStatus(member);
+                              return (
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${pStatus.color}`}>
+                                  <span>●</span> {pStatus.text}
+                                </span>
+                              );
                           })()}
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <button
+                            onClick={() => triggerDeleteMember(member.id, member.username || member.name || "Member")}
+                            className="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors"
+                            title="Hapus Member"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -654,15 +612,15 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                     {payout.status === "Menunggu" && (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleApprovePayout(payout.id)}
-                          className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-extrabold rounded-lg flex items-center justify-center gap-1 transition-all shadow-sm"
+                          onClick={() => triggerApprovePayout(payout.id, payout.memberName, payout.amount)}
+                          className="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-extrabold rounded-lg flex items-center justify-center gap-1 transition-all shadow-sm cursor-pointer"
                         >
                           <Check className="w-3.5 h-3.5" />
                           <span>Setujui (Lunas)</span>
                         </button>
                         <button
-                          onClick={() => handleRejectPayout(payout.id)}
-                          className="px-2.5 py-1.5 bg-[#e2e8f0] shadow-neu-flat hover:shadow-neu-inset text-slate-600 hover:text-red-600 text-[10px] font-bold rounded-lg flex items-center justify-center transition-all border-0"
+                          onClick={() => triggerRejectPayout(payout.id, payout.memberName, payout.amount)}
+                          className="px-2.5 py-1.5 bg-[#e2e8f0] shadow-neu-flat hover:shadow-neu-inset text-slate-600 hover:text-red-600 text-[10px] font-bold rounded-lg flex items-center justify-center transition-all border-0 cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
@@ -672,8 +630,8 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
                     {payout.status !== "Menunggu" && (
                       <div className="flex justify-end">
                         <button
-                          onClick={() => handleDeletePayout(payout.id)}
-                          className="text-[10px] text-slate-400 hover:text-red-500 flex items-center gap-1 font-bold"
+                          onClick={() => triggerDeletePayout(payout.id, payout.memberName)}
+                          className="text-[10px] text-slate-400 hover:text-red-500 flex items-center gap-1 font-bold cursor-pointer"
                         >
                           <Trash2 className="w-3 h-3" />
                           <span>Hapus Log</span>
@@ -689,6 +647,64 @@ export default function AdminPortal({ onBackToHome, onLogout }: AdminPortalProps
         </div>
 
       </div>
+
+      {/* Custom Confirmation Modal */}
+      <AnimatePresence>
+        {confirmModal.isOpen && (
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-[#e2e8f0] shadow-neu-flat rounded-3xl p-6 max-w-sm w-full border-0 space-y-4 text-center text-slate-800"
+            >
+              <div className="flex justify-center">
+                <div className={`p-3 rounded-full shadow-neu-inset ${
+                  confirmModal.variant === "success" 
+                    ? "text-emerald-500" 
+                    : confirmModal.variant === "danger" 
+                    ? "text-rose-500" 
+                    : "text-amber-500"
+                }`}>
+                  <AlertCircle className="w-8 h-8 animate-pulse" />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-base font-black tracking-tight text-slate-800">
+                  {confirmModal.title}
+                </h3>
+                <p className="text-xs text-slate-500 font-bold leading-relaxed">
+                  {confirmModal.message}
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                  className="flex-1 py-2.5 rounded-xl bg-[#e2e8f0] shadow-neu-flat text-slate-600 hover:shadow-neu-inset text-xs font-bold transition-all border-0 cursor-pointer"
+                >
+                  {confirmModal.cancelText || "Batal"}
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmModal.onConfirm}
+                  className={`flex-1 py-2.5 rounded-xl text-white text-xs font-extrabold transition-all shadow-md cursor-pointer hover:opacity-90 ${
+                    confirmModal.variant === "success"
+                      ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/10"
+                      : confirmModal.variant === "danger"
+                      ? "bg-rose-500 hover:bg-rose-600 shadow-rose-500/10"
+                      : "bg-[#7b6cff] hover:bg-[#6c5eff] shadow-[#7b6cff]/10"
+                  }`}
+                >
+                  {confirmModal.confirmText || "Ya, Yakin"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

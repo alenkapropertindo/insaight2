@@ -18,10 +18,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  X
+  X,
+  Eye,
+  EyeOff,
+  Lock
 } from "lucide-react";
 import { motion } from "motion/react";
 import { supabase } from "../lib/supabase";
+import { hashPassword } from "../lib/hash";
 
 interface MemberPortalProps {
   onBackToHome: () => void;
@@ -39,13 +43,14 @@ interface ReferralRecord {
 
 interface MemberRecord {
   id: string;
-  name: string;
+  name?: string;
   phone: string;
   promoCode: string;
   joinedAt: string;
   status: "Aktif" | "Pending";
   referredBy: string;
   role?: "member" | "admin";
+  username: string;
 }
 
 interface PayoutRecord {
@@ -74,6 +79,14 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
   const [walletType, setWalletType] = useState("Dana");
   const [walletNumber, setWalletNumber] = useState("082371068831");
   const [walletOwner, setWalletOwner] = useState("Rizqo Fadhilah");
+  const [memberPhone, setMemberPhone] = useState("-");
+  const [username, setUsername] = useState("");
+
+  // Password reset states
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Notifications
   const [notification, setNotification] = useState<string | null>(null);
@@ -122,6 +135,7 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
     const savedLogin = localStorage.getItem("insaight_is_logged_in");
     const savedName = localStorage.getItem("insaight_member_name");
     const savedPhone = localStorage.getItem("insaight_member_phone");
+    const savedUsername = localStorage.getItem("insaight_username");
 
     if (savedCode) setRefCode(savedCode);
     if (savedWalletType) setWalletType(savedWalletType);
@@ -129,7 +143,11 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
     if (savedWalletOwner) setWalletOwner(savedWalletOwner);
     if (savedLogin === "true") setIsLoggedIn(true);
     if (savedName) setLoginForm(prev => ({ ...prev, name: savedName }));
-    if (savedPhone) setLoginForm(prev => ({ ...prev, phone: savedPhone }));
+    if (savedPhone) {
+      setLoginForm(prev => ({ ...prev, phone: savedPhone }));
+      setMemberPhone(savedPhone);
+    }
+    if (savedUsername) setUsername(savedUsername);
 
     if (window.innerWidth < 1024) {
       setIsSidebarCollapsed(true);
@@ -156,19 +174,72 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
     if (onLogout) onLogout();
   };
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     const formattedCode = refCode.trim().toUpperCase().replace(/[^A-Z0-9_]/g, "");
     if (!formattedCode) {
       showNotification("Kode referral tidak boleh kosong dan hanya boleh alfanumerik!");
       return;
     }
-    setRefCode(formattedCode);
-    localStorage.setItem("insaight_ref_code", formattedCode);
-    localStorage.setItem("insaight_wallet_type", walletType);
-    localStorage.setItem("insaight_wallet_num", walletNumber);
-    localStorage.setItem("insaight_wallet_owner", walletOwner);
-    showNotification("Pengaturan Profil & Kode Referral berhasil disimpan!");
+
+    const cleanPhone = memberPhone.trim();
+    if (!cleanPhone || cleanPhone === "-") {
+      showNotification("Nomor WhatsApp wajib diisi!");
+      return;
+    }
+
+    // Check if user is changing password
+    const hasNewPassword = newPasswordInput.trim() !== "";
+    if (hasNewPassword) {
+      if (newPasswordInput !== confirmPasswordInput) {
+        showNotification("Password baru dan Konfirmasi Password tidak cocok!");
+        return;
+      }
+    }
+
+    try {
+      const savedUsername = localStorage.getItem("insaight_username") || username;
+      if (savedUsername) {
+        // Build update object
+        const updateData: any = {
+          phone: cleanPhone,
+          promoCode: formattedCode
+        };
+
+        if (hasNewPassword) {
+          updateData.password = await hashPassword(newPasswordInput.trim());
+        }
+
+        // Update Supabase database
+        const { error: dbError } = await supabase
+          .from("members")
+          .update(updateData)
+          .eq("username", savedUsername);
+
+        if (dbError) {
+          throw dbError;
+        }
+      }
+
+      setRefCode(formattedCode);
+      setLoginForm(prev => ({ ...prev, phone: cleanPhone }));
+      localStorage.setItem("insaight_ref_code", formattedCode);
+      localStorage.setItem("insaight_member_phone", cleanPhone);
+      localStorage.setItem("insaight_wallet_type", walletType);
+      localStorage.setItem("insaight_wallet_num", walletNumber);
+      localStorage.setItem("insaight_wallet_owner", walletOwner);
+      
+      let successMsg = "Pengaturan Profil, Nomor WhatsApp & Kode Referral berhasil disimpan!";
+      if (hasNewPassword) {
+        successMsg = "Profil & Password baru Anda berhasil disimpan!";
+        setNewPasswordInput("");
+        setConfirmPasswordInput("");
+      }
+      showNotification(successMsg);
+    } catch (err: any) {
+      console.error("Error updating member profile in Supabase:", err);
+      showNotification(`Gagal menyimpan ke database: ${err.message || err}`);
+    }
   };
 
   const showNotification = (msg: string) => {
@@ -196,8 +267,13 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
   const totalClicks = 142; // static simulated clicks
   
   const referrals = useMemo(() => {
-    // Find all members referred by the current user's refCode
-    const myReferred = members.filter(m => m.referredBy.toUpperCase() === refCode.toUpperCase());
+    // Find all members referred by the current user's refCode or username
+    const myReferred = members.filter(m => {
+      if (!m.referredBy) return false;
+      const isPromoMatch = m.referredBy.toUpperCase() === refCode.toUpperCase();
+      const isUsernameMatch = username && m.referredBy.toLowerCase() === username.toLowerCase();
+      return isPromoMatch || isUsernameMatch;
+    });
     
     return myReferred.map(m => {
       let payoutStatus: "Cair" | "Diajukan" | "Pending" | "Belum Diajukan" | "Ditolak" = "Pending";
@@ -205,29 +281,24 @@ export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalPro
       if (m.status === "Pending") {
         payoutStatus = "Belum Diajukan";
       } else {
-        // Andi, Sarah, Budi are pre-seeded as Selesai (Cair) in the default mock records
-        if (m.id === "m-2" || m.id === "m-3" || m.id === "m-4") {
-          payoutStatus = "Cair";
-        } else {
-          // Look up corresponding payout record in insaight_admin_payouts
-          const matchingPayout = payouts.find(p => p.referredMemberId === m.id);
-          if (matchingPayout) {
-            if (matchingPayout.status === "Selesai") {
-              payoutStatus = "Cair";
-            } else if (matchingPayout.status === "Menunggu") {
-              payoutStatus = "Diajukan";
-            } else {
-              payoutStatus = "Ditolak";
-            }
+        // Look up corresponding payout record in database
+        const matchingPayout = payouts.find(p => p.referredMemberId === m.id);
+        if (matchingPayout) {
+          if (matchingPayout.status === "Selesai") {
+            payoutStatus = "Cair";
+          } else if (matchingPayout.status === "Menunggu") {
+            payoutStatus = "Diajukan";
           } else {
-            payoutStatus = "Pending";
+            payoutStatus = "Ditolak";
           }
+        } else {
+          payoutStatus = "Pending";
         }
       }
 
       return {
         id: m.id,
-        name: m.name,
+        name: m.username || m.name,
         date: m.joinedAt,
         memberStatus: m.status, // "Aktif" | "Pending"
         payoutStatus,
@@ -402,13 +473,13 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-600">Nama Lengkap *</label>
+                  <label className="text-xs font-bold text-slate-600">Nama Akun (Username) *</label>
                   <input
                     required
                     type="text"
                     value={loginForm.name}
                     onChange={(e) => setLoginForm({ ...loginForm, name: e.target.value })}
-                    placeholder="Contoh: Rizqo Fadhilah"
+                    placeholder="Contoh: riansaputra"
                     className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
                   />
                 </div>
@@ -848,6 +919,21 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                             * Hanya boleh huruf besar, angka, dan underscore (_). Kode ini akan diinputkan oleh temanmu pada kolom "Kode Promo" saat mereka mendaftar komunitas.
                           </p>
                         </div>
+
+                        <div className="space-y-1.5 pt-2">
+                          <label className="text-xs font-bold text-slate-600">Nomor WhatsApp Member</label>
+                          <input
+                            required
+                            type="tel"
+                            value={memberPhone}
+                            onChange={(e) => setMemberPhone(e.target.value)}
+                            placeholder="Contoh: 082371068831"
+                            className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:shadow-neu-inset transition-all border-0"
+                          />
+                          <p className="text-[10px] text-slate-400 font-bold leading-relaxed mt-1">
+                            * Masukkan nomor WhatsApp aktif Anda agar Admin dapat memverifikasi atau memproses pembayaran komisi Anda.
+                          </p>
+                        </div>
                       </div>
 
                       {/* Right: Payment detail */}
@@ -897,6 +983,61 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                           />
                         </div>
                       </div>
+                    </div>
+
+                    {/* Atur Ulang Password Section */}
+                    <div className="bg-[#e2e8f0] shadow-neu-inset rounded-2xl p-5 space-y-4 border-0 mt-6" id="member-password-reset-section">
+                      <h4 className="text-xs font-bold text-[#7b6cff] uppercase tracking-wider flex items-center gap-2">
+                        <Lock className="w-4 h-4 text-[#7b6cff]" />
+                        <span>Atur Ulang Password Akun</span>
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-600">Password Baru</label>
+                          <div className="relative">
+                            <input
+                              type={showNewPassword ? "text" : "password"}
+                              value={newPasswordInput}
+                              onChange={(e) => setNewPasswordInput(e.target.value)}
+                              placeholder="Masukkan password baru"
+                              className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl pl-4 pr-10 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowNewPassword(!showNewPassword)}
+                              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none bg-transparent border-0 cursor-pointer"
+                              id="toggle-member-new-password"
+                            >
+                              {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-600">Konfirmasi Password Baru</label>
+                          <div className="relative">
+                            <input
+                              type={showConfirmPassword ? "text" : "password"}
+                              value={confirmPasswordInput}
+                              onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                              placeholder="Ketik ulang password baru"
+                              className="w-full bg-[#e2e8f0] shadow-neu-inset-sm rounded-xl pl-4 pr-10 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:shadow-neu-inset transition-all border-0"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 focus:outline-none bg-transparent border-0 cursor-pointer"
+                              id="toggle-member-confirm-password"
+                            >
+                              {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-bold leading-relaxed mt-1">
+                        * Kosongkan kolom di atas jika Anda tidak ingin mengubah password login Anda saat ini.
+                      </p>
                     </div>
 
                     <div className="flex justify-end pt-4 border-t border-slate-300">
