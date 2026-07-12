@@ -31,6 +31,7 @@ import RegistrationModal from "./components/RegistrationModal";
 import MemberPortal from "./components/MemberPortal";
 import AdminPortal from "./components/AdminPortal";
 import UnifiedLogin from "./components/UnifiedLogin";
+import PublicWorkflowTools from "./components/PublicWorkflowTools";
 
 // Map icon strings to Lucide icon components for dynamic rendering
 const iconMap: { [key: string]: ComponentType<any> } = {
@@ -55,6 +56,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMemberActive, setIsMemberActive] = useState(false);
   const [isAdminActive, setIsAdminActive] = useState(false);
+  const [isPublicWorkflowsActive, setIsPublicWorkflowsActive] = useState(false);
   const [initialPromoCode, setInitialPromoCode] = useState("");
 
   const [isMemberLoggedIn, setIsMemberLoggedIn] = useState(() => localStorage.getItem("insaight_is_logged_in") === "true");
@@ -64,6 +66,7 @@ export default function App() {
     setIsMemberLoggedIn(true);
     setIsMemberActive(true);
     setIsAdminActive(false);
+    setIsPublicWorkflowsActive(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -71,6 +74,7 @@ export default function App() {
     setIsAdminLoggedIn(true);
     setIsAdminActive(true);
     setIsMemberActive(false);
+    setIsPublicWorkflowsActive(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -114,10 +118,15 @@ export default function App() {
   }, []);
 
   const scrollToJoin = () => {
-    const element = document.getElementById("join");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    setIsPublicWorkflowsActive(false);
+    setIsMemberActive(false);
+    setIsAdminActive(false);
+    setTimeout(() => {
+      const element = document.getElementById("join");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
   };
 
   return (
@@ -131,6 +140,7 @@ export default function App() {
       <Navbar 
         onJoinClick={scrollToJoin} 
         onMemberClick={() => {
+          setIsPublicWorkflowsActive(false);
           if (isAdminLoggedIn) {
             setIsAdminActive(true);
             setIsMemberActive(false);
@@ -145,8 +155,16 @@ export default function App() {
         onHomeClick={() => {
           setIsMemberActive(false);
           setIsAdminActive(false);
+          setIsPublicWorkflowsActive(false);
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
+        onPublicWorkflowsClick={() => {
+          setIsPublicWorkflowsActive(true);
+          setIsMemberActive(false);
+          setIsAdminActive(false);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+        isPublicWorkflowsActive={isPublicWorkflowsActive}
       />
 
       {isAdminActive ? (
@@ -189,6 +207,18 @@ export default function App() {
             onAdminLoginSuccess={handleAdminLoginSuccess}
           />
         )
+      ) : isPublicWorkflowsActive ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <PublicWorkflowTools 
+            onJoinClick={scrollToJoin} 
+            onMemberClick={() => {
+              setIsPublicWorkflowsActive(false);
+              setIsMemberActive(true);
+              setIsAdminActive(false);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        </div>
       ) : (
         <>
           {/* Hero Section */}
@@ -220,7 +250,7 @@ export default function App() {
                   Jangan Belajar AI Sendirian.
                 </h3>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-                  Di era AI, yang menang bukan hanya yang paling pintar. Yang menang adalah mereka yang belajar lebih cepat, punya lingkungan yang tepat, dan berani mengambil peluang.
+                  Di era AI, yang menang bukan hanya yang paling pintar. Tapi mereka yang belajar lebih cepat, punya lingkungan yang tepat, dan berani mengambil peluang.
                 </p>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
                   <span className="font-semibold text-slate-800">insAIght Kendari</span> hadir sebagai komunitas untuk siapa saja yang ingin meningkatkan skill, membangun karya, menemukan peluang baru, hingga menghasilkan penghasilan dengan bantuan AI.

@@ -8,6 +8,8 @@ interface NavbarProps {
   isMemberActive: boolean;
   isAdminActive: boolean;
   onHomeClick: () => void;
+  onPublicWorkflowsClick: () => void;
+  isPublicWorkflowsActive: boolean;
 }
 
 export default function Navbar({ 
@@ -15,7 +17,9 @@ export default function Navbar({
   onMemberClick, 
   isMemberActive,
   isAdminActive,
-  onHomeClick
+  onHomeClick,
+  onPublicWorkflowsClick,
+  isPublicWorkflowsActive
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -41,13 +45,23 @@ export default function Navbar({
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-5">
             {isAnyPortalActive ? (
-              <button 
-                onClick={onHomeClick} 
-                className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-neu-flat-sm hover:shadow-neu-inset-sm"
-              >
-                <Home className="w-3.5 h-3.5 text-slate-800" />
-                <span>Beranda Utama</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={onHomeClick} 
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-neu-flat-sm hover:shadow-neu-inset-sm"
+                >
+                  <Home className="w-3.5 h-3.5 text-slate-800" />
+                  <span>Beranda Utama</span>
+                </button>
+                <button 
+                  onClick={onPublicWorkflowsClick} 
+                  className={`text-xs font-bold transition-colors flex items-center gap-1.5 px-3 py-2 rounded-xl shadow-neu-flat-sm hover:shadow-neu-inset-sm ${
+                    isPublicWorkflowsActive ? "text-indigo-600 shadow-neu-inset-sm" : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <span>Workflow & Tools (Publik)</span>
+                </button>
+              </div>
             ) : (
               <div className="flex items-center gap-5 bg-[#e2e8f0] px-4 py-1.5 rounded-full shadow-neu-inset-sm border border-white/20">
                 <a href="#apa-yang-didapat" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
@@ -56,6 +70,15 @@ export default function Navbar({
                 <a href="#workshop" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
                   Playground Prompt
                 </a>
+                <button
+                  type="button"
+                  onClick={onPublicWorkflowsClick}
+                  className={`text-xs font-bold transition-colors bg-transparent border-0 cursor-pointer ${
+                    isPublicWorkflowsActive ? "text-indigo-600 font-extrabold" : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  Workflow & Tools
+                </button>
                 <a href="#testimonials" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
                   Komunitas
                 </a>
@@ -112,7 +135,7 @@ export default function Navbar({
             className="md:hidden bg-[#e2e8f0] border-b border-[#ffffff]/50 shadow-neu-flat"
           >
             <div className="px-4 pt-2 pb-6 space-y-3">
-               {isAnyPortalActive ? (
+               {isAnyPortalActive ? (<>
                 <button
                   onClick={() => {
                     setIsOpen(false);
@@ -123,7 +146,19 @@ export default function Navbar({
                   <Home className="w-4 h-4 text-slate-800" />
                   <span>Beranda Utama</span>
                 </button>
-              ) : (
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    onPublicWorkflowsClick();
+                  }}
+                  className={`w-full text-left block px-3 py-2.5 rounded-xl text-sm font-semibold bg-[#e2e8f0] shadow-neu-flat-sm hover:shadow-neu-inset-sm transition-all flex items-center gap-2 mt-2 border-0 cursor-pointer ${
+                    isPublicWorkflowsActive ? "text-indigo-600 font-extrabold" : "text-slate-700"
+                  }`}
+                >
+                  <Cpu className="w-4 h-4 text-slate-800" />
+                  <span>Workflow & Tools (Publik)</span>
+                </button>
+              </>) : (
                 <div className="space-y-1.5">
                   <a
                     href="#apa-yang-didapat"
@@ -139,6 +174,18 @@ export default function Navbar({
                   >
                     Playground Prompt
                   </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false);
+                      onPublicWorkflowsClick();
+                    }}
+                    className={`w-full text-left block px-3 py-2.5 rounded-xl text-sm font-medium bg-[#e2e8f0] shadow-neu-flat-sm hover:shadow-neu-inset-sm transition-all border-0 cursor-pointer ${
+                      isPublicWorkflowsActive ? "text-indigo-600 font-extrabold" : "text-slate-600"
+                    }`}
+                  >
+                    Workflow & Tools
+                  </button>
                   <a
                     href="#testimonials"
                     onClick={() => setIsOpen(false)}

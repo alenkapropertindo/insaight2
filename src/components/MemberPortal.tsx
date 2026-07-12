@@ -21,11 +21,13 @@ import {
   X,
   Eye,
   EyeOff,
-  Lock
+  Lock,
+  Cpu
 } from "lucide-react";
 import { motion } from "motion/react";
 import { supabase } from "../lib/supabase";
 import { hashPassword } from "../lib/hash";
+import WorkflowTools from "./WorkflowTools";
 
 interface MemberPortalProps {
   onBackToHome: () => void;
@@ -67,7 +69,7 @@ interface PayoutRecord {
 }
 
 export default function MemberPortal({ onBackToHome, onLogout }: MemberPortalProps) {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "profile">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "profile" | "workflow">("dashboard");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginForm, setLoginForm] = useState({
     name: "Rizqo Fadhilah",
@@ -525,7 +527,11 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                 <div className="text-left">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Navigasi</span>
                   <span className="text-xs font-bold text-slate-800">
-                    {activeTab === "dashboard" ? "Affiliate Dashboard" : "Pengaturan Profil"}
+                    {activeTab === "dashboard" 
+                      ? "Affiliate Dashboard" 
+                      : activeTab === "profile" 
+                      ? "Pengaturan Profil" 
+                      : "Workflow & Tools"}
                   </span>
                 </div>
               </div>
@@ -643,6 +649,26 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     <User className="w-4 h-4 shrink-0" />
                     <span className={isSidebarCollapsed ? "lg:hidden block" : "block"}>
                       Pengaturan Profil
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveTab("workflow");
+                      if (window.innerWidth < 1024) {
+                        setIsSidebarCollapsed(true);
+                      }
+                    }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-xl text-sm font-bold transition-all ${
+                      activeTab === "workflow"
+                        ? "shadow-neu-inset text-slate-900 bg-[#e2e8f0]"
+                        : "text-slate-600 hover:text-slate-800 hover:shadow-neu-inset-sm bg-transparent"
+                    } ${isSidebarCollapsed ? "lg:justify-center justify-start" : "justify-start"}`}
+                    title="Workflow & Tools"
+                  >
+                    <Cpu className="w-4 h-4 shrink-0" />
+                    <span className={isSidebarCollapsed ? "lg:hidden block" : "block"}>
+                      Workflow & Tools
                     </span>
                   </button>
                 </div>
@@ -881,6 +907,11 @@ Mohon bantu proses pencairannya. Terima kasih! 🚀`;
                     </div>
                   </div>
                 </div>
+              )}
+
+              {/* TAB 3: WORKFLOW & TOOLS */}
+              {activeTab === "workflow" && (
+                <WorkflowTools memberName={loginForm.name} />
               )}
 
               {/* TAB 2: PROFILE & SETTINGS */}

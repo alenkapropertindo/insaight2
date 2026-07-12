@@ -51,3 +51,25 @@ INSERT INTO payouts (id, "memberName", "refCode", amount, "walletType", "walletN
 ('p-2', 'admin', 'RIZQO_INS', 50000, 'Dana', '082371068831', 'Rizqo Fadhilah', '06 Juli 2026', 'Menunggu', 'm-5'),
 ('p-3', 'andi', 'ANDI_INS', 100000, 'BCA', '123456789', 'Andi Saputra', '04 Juli 2026', 'Selesai', 'm-3')
 ON CONFLICT (id) DO NOTHING;
+
+-- 7. Create workflows table
+CREATE TABLE IF NOT EXISTS workflows (
+  id TEXT PRIMARY KEY,
+  category TEXT NOT NULL,
+  is_new BOOLEAN NOT NULL DEFAULT false,
+  is_draft BOOLEAN NOT NULL DEFAULT false,
+  is_public BOOLEAN NOT NULL DEFAULT false,
+  title TEXT NOT NULL,
+  description TEXT,
+  prompt_template TEXT,
+  variables JSONB NOT NULL DEFAULT '{}',
+  materi_tutorial JSONB NOT NULL DEFAULT '{}',
+  duration TEXT,
+  youtube_url TEXT,
+  gemini_tool_url TEXT,
+  roadmap JSONB NOT NULL DEFAULT '[]',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Disable Row Level Security (RLS) to allow public access from our client-side app
+ALTER TABLE workflows DISABLE ROW LEVEL SECURITY;
